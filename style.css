@@ -694,6 +694,29 @@ button, input, select, textarea {
   font-size: 0.95rem;
 }
 
+.math-display {
+  background: var(--brand-light);
+  border: 1px solid rgba(2, 132, 199, 0.25);
+  border-left: 4px solid var(--brand-primary);
+  padding: 0.85rem 1.25rem;
+  border-radius: var(--radius-md);
+  margin: 1rem 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.math-inline {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  font-family: inherit;
+  font-weight: 600;
+  color: var(--brand-primary);
+}
+
 /* TABLEAU CLINIQUE INTERACTIF */
 .table-responsive-wrapper {
   overflow-x: auto;

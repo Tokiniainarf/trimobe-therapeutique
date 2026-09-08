@@ -14,21 +14,39 @@ function escHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
+// Nettoyage et formatage des formules mathématiques/LaTeX
+function formatMathFormula(str) {
+  if (!str) return '';
+  return str
+    .replace(/\\text\{([^}]+)\}/g, '$1')
+    .replace(/\\mathbf\{([^}]+)\}/g, '<strong>$1</strong>')
+    .replace(/\\times/g, '×')
+    .replace(/\\approx/g, '≈')
+    .replace(/\\longrightarrow/g, '➔')
+    .replace(/\\rightarrow/g, '➔')
+    .replace(/\\,/g, ' ');
+}
+
 // Convertisseur Markdown léger et sécurisé en HTML
 function renderMarkdown(md) {
   if (!md) return '';
   let html = escHtml(md);
 
-  // Mathématique KaTeX inline / display
-  html = html.replace(/\$\$(.+?)\$\$/g, '<div class="math-display"><code>$1</code></div>');
-  html = html.replace(/\$(.+?)\$/g, '<code class="math-inline">$1</code>');
+  // Mathématique inline / display
+  html = html.replace(/\$\$(.+?)\$\$/gs, (match, p1) => {
+    return `<div class="math-display">📐 ${formatMathFormula(p1).trim()}</div>`;
+  });
+  html = html.replace(/\$(.+?)\$/g, (match, p1) => {
+    return `<span class="math-inline">${formatMathFormula(p1).trim()}</span>`;
+  });
 
   // Titres ### et ##
   html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
   html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
 
-  // Alertes et Blockquotes
-  html = html.replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>');
+  // Alertes et Blockquotes (après escHtml, le symbole > est devenu &gt;)
+  html = html.replace(/^(&gt;|>)\s*(.*$)/gim, '<blockquote>$2</blockquote>');
+  html = html.replace(/<\/blockquote>\s*<blockquote>/gim, '<br>');
 
   // Gras et Italique
   html = html.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');

@@ -1011,7 +1011,7 @@ Avant toute nouvelle prescription chez un sujet âgé, se poser la question :
 **Ne jamais extrapoler automatiquement la posologie d'un adulte à un enfant.**
 
 ### Formule de calcul :
-$$\\text{Dose par prise} = \\text{Poids (kg)} \\times \\text{Dose recommandée (mg/kg/prise)}$$
+> 📐 **Dose par prise** = **Poids (kg)** × **Dose recommandée (mg/kg/prise)**
 
 ### Points de contrôle obligatoires :
 - Âge précis et poids exact du jour ;
@@ -1041,7 +1041,7 @@ $$\\text{Dose par prise} = \\text{Poids (kg)} \\times \\text{Dose recommandée (
 - **Sulfamides hypoglycémiants** (hypoglycémies prolongées).
 
 ### Séquence de sécurité obligatoire :
-$$\\mathbf{Indication} \\longrightarrow \\mathbf{Dose} \\longrightarrow \\mathbf{Surveillance}$$
+> 🛡️ **Indication** ➔ **Dose** ➔ **Surveillance**
 *Toujours expliquer au patient et aux aidants les signes d'alerte spécifiques et les conduites à tenir d'urgence.*`
     },
     {
@@ -1236,16 +1236,17 @@ $$\\mathbf{Indication} \\longrightarrow \\mathbf{Dose} \\longrightarrow \\mathbf
       isUrgent: false,
       summary: "Règles de calcul pédiatriques, conversions d'unités de masse et équivalences de glycémie.",
       content: `### Calculs Posologiques Pédiatriques
-$$\\text{Dose par prise (mg)} = \\text{Poids (kg)} \\times \\text{Dose recommandée (mg/kg/prise)}$$
-$$\\text{Dose par jour (mg)} = \\text{Poids (kg)} \\times \\text{Dose recommandée (mg/kg/jour)}$$
+> 📐 **Dose par prise (mg)** = **Poids (kg)** × **Dose recommandée (mg/kg/prise)**
+
+> 📐 **Dose quotidienne (mg)** = **Poids (kg)** × **Dose recommandée (mg/kg/jour)**
 
 ### Conversions de masse usuelles
-- $1\\text{ g} = 1\\,000\\text{ mg}$
-- $1\\text{ mg} = 1\\,000\\text{ µg}$
+- **1 g** = **1 000 mg**
+- **1 mg** = **1 000 µg**
 
 ### Équivalences glycémiques
-- $1\\text{ g/L} \\approx 100\\text{ mg/dL} \\approx 5,55\\text{ mmol/L}$
-- **Seuil d'hypoglycémie :** $< 0,70\\text{ g/L} = < 70\\text{ mg/dL} = < 3,9\\text{ mmol/L}$`
+- **1 g/L** ≈ **100 mg/dL** ≈ **5,55 mmol/L**
+- **Seuil d'hypoglycémie :** **< 0,70 g/L** (soit **< 70 mg/dL** ou **< 3,9 mmol/L**)`
     },
     {
       num: "L",
