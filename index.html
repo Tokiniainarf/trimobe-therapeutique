@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Manuels de Thérapeutique Clinique & Gériatrie — Collection TRIMOBE & UMSP 2026</title>
+  <meta name="description" content="Plateforme médicale de référence pour la médecine générale, les soins de première ligne et la gériatrie. Collection TRIMOBE et UMSP, Édition Septembre 2026.">
+  <meta name="theme-color" content="#0284c7">
+  
+  <!-- Manifeste PWA & Icônes -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🩺</text></svg>">
+
+  <!-- Polices Google Fonts (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+  <!-- Feuille de style principale -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- SIDEBAR DE NAVIGATION -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-badge-container">
+          <div class="brand-logo-icon">🩺</div>
+          <div>
+            <div class="brand-title">TRIMOBE & UMSP</div>
+            <div class="brand-sub">Thérapeutique Clinique 2026</div>
+          </div>
+        </div>
+
+        <!-- COMMUTATEUR DES DEUX MANUELS -->
+        <div class="manual-selector-tabs">
+          <button class="tab-btn active" data-manual="general" onclick="setManual('general')">
+            Médecine Générale
+          </button>
+          <button class="tab-btn" data-manual="geriatrie" onclick="setManual('geriatrie')">
+            Gériatrie
+          </button>
+        </div>
+      </div>
+
+      <!-- OUTILS CLINIQUES TRANSVERSAUX -->
+      <div class="sidebar-tools">
+        <button class="tool-nav-btn emergency-btn" onclick="renderView('urgences')">
+          <span>🚨</span> Urgences & Signes Vitaux
+        </button>
+        <button class="tool-nav-btn" onclick="renderView('calculators')">
+          <span>🧮</span> Calculateurs Cliniques
+        </button>
+        <button class="tool-nav-btn" onclick="renderView('drugs')">
+          <span>💊</span> Répertoire DCI (Ch. XLV)
+        </button>
+        <button class="tool-nav-btn" onclick="renderView('checklist')">
+          <span>✅</span> Check-list Ordonnance
+        </button>
+        <button class="tool-nav-btn" onclick="renderView('favorites')">
+          <span>⭐</span> Mes Fiches Favorites
+        </button>
+        <button class="tool-nav-btn" onclick="renderView('references')">
+          <span>📚</span> Comités & Références
+        </button>
+      </div>
+
+      <!-- RECHERCHE RAPIDE DANS LA SOMMAIRE -->
+      <div class="sidebar-search-box">
+        <input type="text" id="sidebarSearchInput" class="sidebar-search-input" placeholder="Filtrer le sommaire...">
+      </div>
+
+      <!-- LISTE DES CHAPITRES / FICHES -->
+      <nav class="sidebar-nav-list" id="sidebarNavList" aria-label="Sommaire de l'ouvrage">
+        <!-- Rendu dynamique par app.js -->
+      </nav>
+
+      <div class="sidebar-footer">
+        <span>Édition Septembre 2026</span>
+        <span>TRIMOBE.org</span>
+      </div>
+    </aside>
+
+    <!-- ZONE PRINCIPALE DE CONTENU -->
+    <main class="main-wrapper">
+      
+      <!-- BARRE DE NAVIGATION SUPÉRIEURE (STICKY) -->
+      <header class="top-navbar">
+        <div class="navbar-left">
+          <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Ouvrir le menu">
+            ☰
+          </button>
+          <div class="nav-breadcrumbs" id="navBreadcrumbs">
+            <span>Médecine Générale</span>
+            <span>/</span>
+            <span class="current">Accueil</span>
+          </div>
+        </div>
+
+        <div class="navbar-center">
+          <button class="global-search-trigger" onclick="openSearchModal()">
+            <span style="display: flex; align-items: center; gap: 0.5rem;">
+              <span>🔍</span>
+              <span>Rechercher une pathologie, DCI, signe d'urgence...</span>
+            </span>
+            <kbd class="search-shortcut-badge">Ctrl + K</kbd>
+          </button>
+        </div>
+
+        <div class="navbar-actions">
+          <div class="font-size-control">
+            <button class="font-btn" onclick="adjustFontSize(-1)" title="Réduire la taille du texte">A-</button>
+            <button class="font-btn" onclick="adjustFontSize(1)" title="Agrandir la taille du texte">A+</button>
+          </div>
+          <button class="icon-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Basculer le mode sombre/clair">
+            🌙
+          </button>
+          <button class="icon-btn" onclick="window.print()" title="Imprimer la fiche active">
+            🖨️
+          </button>
+        </div>
+      </header>
+
+      <!-- SCÈNE D'AFFICHAGE DES CONTENUS -->
+      <section class="content-stage" id="contentStage" role="region" aria-live="polite">
+        <!-- Injecté dynamiquement par app.js -->
+      </section>
+
+      <!-- AVERTISSEMENT LÉGAL EN PIED DE PAGE -->
+      <footer class="footer-disclaimer">
+        <p>
+          <strong>Manuel de Thérapeutique Clinique & Fiches de Thérapeutique en Gériatrie</strong> — Édition Septembre 2026.<br>
+          Collection TRIMOBE.org & Union des Médecins du Secteur Privé (UMSP). Document pédagogique destiné exclusivement aux médecins dans le cadre de la FMC.<br>
+          Toute prescription relève de la responsabilité du médecin prescripteur selon les caractéristiques propres à chaque patient.
+        </p>
+      </footer>
+    </main>
+
+  </div>
+
+  <!-- MODAL DE RECHERCHE UNIVERSELLE (CTRL + K) -->
+  <div class="modal-overlay" id="searchModal" onclick="if(event.target === this) closeSearchModal()">
+    <div class="modal-content-card">
+      <div class="modal-search-header">
+        <span style="font-size: 1.25rem;">🔍</span>
+        <input type="text" id="modalSearchInput" class="modal-search-input" placeholder="Rechercher simultanément dans les 2 manuels et les DCI..." oninput="renderSearchResults(this.value)">
+        <button class="icon-btn" onclick="closeSearchModal()" style="border: none; background: transparent; font-size: 1.1rem;">✕</button>
+      </div>
+      <div class="modal-results-list" id="modalResultsList">
+        <!-- Résultats injectés -->
+      </div>
+      <div style="padding: 0.6rem 1.25rem; background: var(--bg-primary); border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
+        <span>Naviguez avec la souris ou tapez pour filtrer</span>
+        <span>Appuyez sur <kbd>Échap</kbd> pour fermer</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS APPLICATIFS -->
+  <script src="data-general.js"></script>
+  <script src="data-geriatrie.js"></script>
+  <script src="data-drugs.js"></script>
+  <script src="calculators.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
