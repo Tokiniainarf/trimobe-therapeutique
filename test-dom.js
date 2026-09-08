@@ -92,4 +92,26 @@ files.forEach(f => {
     throw new Error(`Fichier manquant : ${f}`);
   }
 });
+// Test de renderMarkdown sur les tableaux et formules
+const appCode = fs.readFileSync('./app.js', 'utf8');
+eval(appCode.substring(0, appCode.indexOf('// État global')));
+
+const gen = require('./data-general.js');
+const ch45 = gen.chapters.find(c => c.num === 'XLV');
+const rendered45 = renderMarkdown(ch45.content);
+if (!rendered45.includes('<table class="clinical-table">')) {
+  throw new Error("Échec du rendu du tableau Markdown pour le Chapitre XLV !");
+}
+if (!rendered45.includes('<th>DCI</th>')) {
+  throw new Error("Entête DCI manquant dans le tableau !");
+}
+console.log("✓ Rendu du tableau médical du Chapitre XLV validé avec succès !");
+
+const ch49 = gen.chapters.find(c => c.num === 'XLIX');
+const rendered49 = renderMarkdown(ch49.content);
+if (rendered49.includes('\\text{') || rendered49.includes('\\times')) {
+  throw new Error("Code LaTeX résiduel détecté dans le Chapitre XLIX !");
+}
+console.log("✓ Rendu des formules médicales du Chapitre XLIX validé sans résidu LaTeX !");
+
 console.log(`✓ Tous les ${files.length} fichiers du projet sont bien créés et présents sur le disque !`);

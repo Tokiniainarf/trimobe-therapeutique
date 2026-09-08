@@ -27,6 +27,60 @@ function formatMathFormula(str) {
     .replace(/\\,/g, ' ');
 }
 
+// Parseur de tableaux Markdown en tables HTML médicales
+function parseMarkdownTables(text) {
+  const lines = text.split('\n');
+  let inTable = false;
+  let tableLines = [];
+  const result = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line.startsWith('|') && line.endsWith('|')) {
+      inTable = true;
+      tableLines.push(line);
+    } else {
+      if (inTable) {
+        result.push(renderTableBlock(tableLines));
+        tableLines = [];
+        inTable = false;
+      }
+      result.push(lines[i]);
+    }
+  }
+  if (inTable) {
+    result.push(renderTableBlock(tableLines));
+  }
+  return result.join('\n');
+}
+
+function renderTableBlock(lines) {
+  if (lines.length < 2) return lines.join('\n');
+  const parseRow = (line) => line.slice(1, -1).split('|').map(c => c.trim());
+  const headers = parseRow(lines[0]);
+  let startIndex = 1;
+  if (lines.length > 1 && /^[\s|:-]+$/.test(lines[1])) {
+    startIndex = 2;
+  }
+
+  let tableHtml = '<div class="table-responsive-wrapper"><table class="clinical-table"><thead><tr>';
+  headers.forEach(h => {
+    tableHtml += `<th>${h}</th>`;
+  });
+  tableHtml += '</tr></thead><tbody>';
+
+  for (let i = startIndex; i < lines.length; i++) {
+    const cells = parseRow(lines[i]);
+    tableHtml += '<tr>';
+    cells.forEach(cell => {
+      tableHtml += `<td>${cell || ''}</td>`;
+    });
+    tableHtml += '</tr>';
+  }
+  tableHtml += '</tbody></table></div>';
+  return tableHtml;
+}
+
 // Convertisseur Markdown léger et sécurisé en HTML
 function renderMarkdown(md) {
   if (!md) return '';
@@ -52,6 +106,9 @@ function renderMarkdown(md) {
   html = html.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
   html = html.replace(/\*(.*?)\*/gim, '<em>$1</em>');
 
+  // Tableaux Markdown
+  html = parseMarkdownTables(html);
+
   // Puces de listes
   html = html.replace(/^[•\-\*] (.*$)/gim, '<li>$1</li>');
 
@@ -71,6 +128,7 @@ function renderMarkdown(md) {
 
   return html;
 }
+
 
 // État global de l'application
 const AppState = {
