@@ -915,27 +915,57 @@ Une corticothérapie prolongée ne doit **jamais être interrompue brutalement**
       category: "infectiologie",
       title: "Antibiotiques courants",
       isUrgent: false,
-      summary: "Monographies synthétiques : Amoxicilline, Amox/Clav, Fosfomycine, Nitrofurantoïne, Ceftriaxone, Doxycycline, etc.",
-      content: `### Synthèse des molécules usuelles de première intention :
-- **Amoxicilline** :
-  - *Posologie adulte :* 500 mg à 1 g par prise, 2 à 3 fois par jour selon le foyer.
-  - *Précautions :* Adapter au DFG, antécédent d'allergie aux pénicillines.
-- **Amoxicilline / acide clavulanique** :
-  - Posologie adaptée à l'infection, au terrain et au DFG. Surveiller la tolérance hépatique (ictère cholestatique) et digestive (diarrhée).
-- **Fosfomycine trométamol** :
-  - 3 g en prise unique orale (cystites simples).
-- **Nitrofurantoïne** :
-  - 100 mg 2 fois par jour. Tenir compte du DFG (contre-indiqué si DFG < 30 mL/min).
-- **Ceftriaxone** :
-  - 1 à 2 g par jour en injection IV ou IM chez l'adulte. Utilisation injectable strictement justifiée par la sévérité clinique.
-- **Doxycycline** :
-  - Posologie selon l'indication. Précautions : photosensibilisation, contre-indiquée chez la femme enceinte et l'enfant < 8 ans (coloration des dents).
-- **Azithromycine** :
-  - Dose selon indication. Attention au risque d'allongement de l'intervalle QT et aux interactions.
-- **Métronidazole** :
-  - Infections anaérobies et parasitoses. Contre-indication stricte avec l'alcool (effet antabuse).
-- **Ciprofloxacine** :
-  - Fluoroquinolone à réserver strictement aux indications documentées et indispensables compte tenu des alertes de sécurité (tendinopathies, rupture du tendon d'Achille, anévrisme aortique, troubles neuropsychiatriques).`
+      summary: "Monographies synthétiques avec classification OMS AWaRe (Access, Watch, Reserve) : bêtalactamines, fosfomycine, nitrofurantoïne, cyclines, C3G, macrolides et fluoroquinolones.",
+      content: `### Synthèse des molécules usuelles avec classification OMS AWaRe :
+
+- **Amoxicilline** [ACCESS - 1er Choix OMS] :
+  - *Posologie adulte :* 500 mg à 1 g par prise, 2 à 3 fois par jour selon le foyer (jusqu'à 3 g/jour dans les pneumonies franches à pneumocoque).
+  - *Indications de 1ère intention :* Infections ORL (angines à SGA confirmées par TDR, otites moyennes aiguës, sinusites maxillaires), pneumonies aiguës communautaires, éradication d'*Helicobacter pylori*, infections cutanées simples.
+  - *Précautions & Sécurité :* Adapter impérativement au DFG si ClCr < 30 mL/min. Contre-indiqué en cas d'allergie vraie aux pénicillines. Éruption maculopapuleuse fréquente et non allergique en cas de mononucléose infectieuse (MNI).
+- **Amoxicilline / acide clavulanique** [ACCESS - 1er Choix OMS] :
+  - *Posologie adulte :* 1 g/125 mg 3 fois par jour au milieu des repas pour réduire l'intolérance digestive.
+  - *Indications :* Exacerbations de BPCO à risque, pneumonies de déglutition ou avec suspicion de germes anaérobies/Gram négatif, morsures animales ou humaines, diverticulites aiguës, pyélonéphrites aiguës en relais après antibiogramme.
+  - *Précautions & Sécurité :* Diarrhée fréquente (acide clavulanique), risque d'hépatite cholestatique aiguë médicamenteuse. Espacer les prises en cas d'insuffisance rénale sévère.
+- **Pivmécillinam** [ACCESS - 1er Choix OMS] :
+  - *Posologie adulte :* 400 mg 2 fois par jour pendant 3 jours.
+  - *Indications :* Traitement de 1ère intention de la cystite aiguë simple à *Escherichia coli* chez la femme.
+  - *Précautions & Sécurité :* Prendre au milieu des repas avec un grand verre d'eau en restant en position assise ou debout (prévention des ulcérations œsophagiennes). Inefficace sur les pyélonéphrites aiguës et prostatites (diffusion parenchymateuse insuffisante). Contre-indiqué en cas de déficit en carnitine.
+- **Fosfomycine trométamol** [ACCESS - 1er Choix OMS] :
+  - *Posologie adulte :* Sachet de 3 g en prise unique orale, à jeun ou à distance des repas (2h), de préférence au coucher après avoir vidé la vessie.
+  - *Indications :* Traitement monodose de 1ère intention de la cystite aiguë simple non compliquée de la femme jeune.
+  - *Précautions & Sécurité :* Totalement inefficace et formellement proscrit dans les pyélonéphrites aiguës et les prostatites (diffusion tissulaire rénale nulle).
+- **Nitrofurantoïne** [ACCESS - 1er Choix OMS] :
+  - *Posologie adulte :* 100 mg 2 à 3 fois par jour pendant 5 à 7 jours.
+  - *Indications :* Cystite aiguë simple de la femme (alternative si fosfomycine ou pivmécillinam non utilisables).
+  - *Précautions & Sécurité :* ⛔ **Contre-indiquée si DFG < 30-45 mL/min** (inefficacité urinaire et accumulation toxique systémique). **Interdiction absolue de prescription au long cours ou en prophylaxie continue** en raison du risque létal de fibrose pulmonaire interstitielle irréversible et d'hépatite cytolytique ou cholestatique sévère.
+- **Doxycycline** [ACCESS - 1er Choix OMS] :
+  - *Posologie adulte :* 100 mg à 200 mg par jour en 1 ou 2 prises au milieu d'un repas.
+  - *Indications :* Pneumonies atypiques (*Mycoplasma*, *Chlamydophila*), exacerbations de BPCO, zoonoses (Lyme précoce, rickettsioses, leptospirose), chlamydioses urogénitales, acné inflammatoire.
+  - *Précautions & Sécurité :* Photosensibilisation majeure (protection solaire rigoureuse) ; risque d'ulcérations œsophagiennes (avaler avec un grand verre d'eau sans s'allonger dans les 30 minutes) ; contre-indiquée chez l'enfant < 8 ans et à partir du 2e trimestre de la grossesse (anomalies et dyschromie définitive de l'émail dentaire).
+- **Métronidazole** [ACCESS - 1er Choix OMS] :
+  - *Posologie adulte :* 500 mg 2 à 3 fois par jour selon l'indication.
+  - *Indications :* Infections à bactéries anaérobies strictes (*Bacteroides fragilis*), vaginoses bactériennes (*Gardnerella*), trichomonase urogénitale, colite à *C. difficile* (formes légères), amibiase hépatique et intestinale.
+  - *Précautions & Sécurité :* ⚠️ **Effet antabuse sévère avec l'alcool** (rougeur faciale, tachycardie, céphalées, vomissements, malaise — abstinence alcoolique totale pendant le traitement et jusqu'à 48h après). Goût métallique désagréable ; neuropathies périphériques en cas de traitement prolongé.
+- **Sulfaméthoxazole / Triméthoprime (Cotrimoxazole)** [ACCESS - 1er Choix OMS] :
+  - *Posologie adulte :* Forme forte (800 mg SMX / 160 mg TMP) : 1 comprimé 2 fois par jour.
+  - *Indications :* Infections urinaires documentées, prostatites bactériennes aiguës ou chroniques, prophylaxie et traitement curatif de la pneumocystose, infections cutanées à staphylocoque doré (y compris SARM communautaire sensible).
+  - *Précautions & Sécurité :* Risque de toxidermies bulleuses graves (syndromes de Stevens-Johnson et de Lyell) ; cytopénies médullaires (surveiller NFS) ; hyperkaliémie fréquente chez le sujet âgé ou insuffisant rénal (effet épargneur de potassium du triméthoprime) ; adapter la dose au DFG ; contre-indiqué en cas de déficit en G6PD et au 1er trimestre de grossesse.
+- **Ceftriaxone** [WATCH - Risque de Résistance] :
+  - *Posologie adulte :* 1 à 2 g par jour en une seule injection IV ou IM (jusqu'à 4 g/jour dans les méningites bactériennes purulentes).
+  - *Indications :* Infections sévères hospitalisées : pyélonéphrites aiguës de l'adulte, pneumonies aiguës communautaires sévères, méningites, bactériémies, gonococcie non compliquée (injection unique IM).
+  - *Précautions & Sécurité :* ⚠️ **Molécule du groupe WATCH :** À préserver pour limiter la pression de sélection sur les entérobactéries et freiner l'émergence des souches productrices de BLSE. Relais oral ACCESS le plus précoce possible dès amélioration clinique. Ne jamais perfuser avec des solutions contenant du calcium (précipitation de sels insolubles de calcium-ceftriaxone).
+- **Azithromycine** [WATCH - Risque de Résistance] :
+  - *Posologie adulte :* 500 mg à J1 puis 250 mg par jour de J2 à J5 (ou 500 mg par jour pendant 3 jours).
+  - *Indications :* Infections respiratoires à germes atypiques (*Mycoplasma*, *Chlamydophila*, *Legionella*), coqueluche, urétrite et cervicite à *Chlamydia trachomatis* (1 g prise unique), diarrhées invasives bactériennes sévères.
+  - *Précautions & Sécurité :* ⚠️ **Molécule du groupe WATCH :** Risque prouvé d'allongement de l'intervalle QT et de torsades de pointes chez les sujets à risque cardiologique ; émergence rapide de pneumocoques résistants aux macrolides en cas d'utilisation non raisonnée.
+- **Ciprofloxacine** [WATCH - Risque de Résistance] :
+  - *Posologie adulte :* 500 mg à 750 mg 2 fois par jour par voie orale.
+  - *Indications :* Pyélonéphrites aiguës documentées, prostatites bactériennes aiguës, infections ostéo-articulaires documentées, diarrhées bactériennes invasives avec syndrome dysentérique sévère.
+  - *Précautions & Sécurité :* 🚨 **Alertes de sécurité majeures ANSM / EMA :** Fluoroquinolone du groupe WATCH à réserver strictement aux indications indispensables documentées. Effets indésirables invalidants et potentiellement irréversibles : tendinopathies et ruptures du tendon d'Achille (risque majoré chez la personne âgée ou sous corticothérapie), anévrisme et dissection aortique, décompensation de myasthénie, allongement du QT, neuropathies périphériques et troubles neuropsychiatriques (agitation, confusion, hallucinations). Proscrite dans les infections bénignes (angines, bronchites, sinusites, cystites simples).
+- **Groupe RESERVE (Carbapénèmes, Colistine, Linézolide, Céfidérocol)** [RESERVE - Dernier Recours] :
+  - *Molécules de dernier recours :* Méropénème, Imipénème/Cilastatine, Colistine, Linézolide, Daptomycine, Céfidérocol, Ceftazidime/Avibactam.
+  - *Cadre d'utilisation :* Strictement réservées aux infections hospitalières documentées à bactéries hautement résistantes (entérobactéries productrices de carbapénémases - EPC, *Pseudomonas aeruginosa* ou *Acinetobacter baumannii* multirésistants).
+  - *Règle de dispensation :* Aucune indication ni dispensation en médecine ambulatoire de premier recours. Prescription hospitalière encadrée par un médecin référent en antibiothérapie.`
     },
     {
       num: "XXXVII",

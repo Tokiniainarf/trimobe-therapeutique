@@ -82,13 +82,16 @@
       </div>
     </aside>
 
+    <!-- BACKDROP MODAL OVERLAY DU MENU MOBILE -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
+
     <!-- ZONE PRINCIPALE DE CONTENU -->
     <main class="main-wrapper">
       
       <!-- BARRE DE NAVIGATION SUPÉRIEURE (STICKY) -->
       <header class="top-navbar">
         <div class="navbar-left">
-          <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Ouvrir le menu">
+          <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Ouvrir le menu" aria-expanded="false" title="Ouvrir le menu">
             ☰
           </button>
           <div class="nav-breadcrumbs" id="navBreadcrumbs">
@@ -163,5 +166,20 @@
   <script src="data-drugs.js"></script>
   <script src="calculators.js"></script>
   <script src="app.js"></script>
+
+  <!-- ENREGISTREMENT DU SERVICE WORKER PWA (HORS-LIGNE) -->
+  <script>
+    if ('serviceWorker' in navigator && (window.location.protocol.startsWith('http') || window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => {
+            console.log('TRIMOBE PWA : Service Worker enregistré avec succès (scope:', reg.scope, ')');
+          })
+          .catch(err => {
+            console.warn('TRIMOBE PWA : Échec enregistrement Service Worker :', err);
+          });
+      });
+    }
+  </script>
 </body>
 </html>

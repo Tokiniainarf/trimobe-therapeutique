@@ -12,10 +12,29 @@ class MockElement {
     this.children = [];
     this._innerHTML = '';
     this._textContent = '';
-    this.classList = new Set();
-    this.classList.add = (c) => this.classList.add(c);
-    this.classList.remove = (c) => this.classList.delete(c);
-    this.classList.toggle = (c, val) => val ? this.classList.add(c) : this.classList.delete(c);
+    this._classListSet = new Set();
+    this.classList = {
+      add: (...tokens) => { tokens.forEach(t => { if (t) this._classListSet.add(String(t)); }); },
+      remove: (...tokens) => { tokens.forEach(t => { this._classListSet.delete(String(t)); }); },
+      toggle: (token, val) => {
+        token = String(token);
+        if (val !== undefined) {
+          if (val) { this._classListSet.add(token); return true; }
+          else { this._classListSet.delete(token); return false; }
+        }
+        if (this._classListSet.has(token)) {
+          this._classListSet.delete(token);
+          return false;
+        } else {
+          this._classListSet.add(token);
+          return true;
+        }
+      },
+      contains: (token) => this._classListSet.has(String(token)),
+      get length() { return this._classListSet.size; },
+      toString: () => Array.from(this._classListSet).join(' '),
+      forEach: (cb, thisArg) => this._classListSet.forEach(cb, thisArg)
+    };
     this.dataset = {};
     this.attributes = {};
     this.style = {};
@@ -73,6 +92,21 @@ if (testElem.innerHTML !== "Test &amp; &lt; &gt; &#39; &quot;") {
   throw new Error("Échec de l'invariant Sandboxed DOM Testing sur textContent setter!");
 }
 console.log("✓ Invariant Sandboxed DOM Testing validé avec succès !");
+
+// Test de MockElement.classList (non-régression récursion infinie)
+testElem.classList.add('btn', 'btn-primary');
+if (!testElem.classList.contains('btn') || !testElem.classList.contains('btn-primary')) {
+  throw new Error("Échec de classList.add ou classList.contains!");
+}
+testElem.classList.toggle('btn', false);
+if (testElem.classList.contains('btn')) {
+  throw new Error("Échec de classList.toggle(..., false)!");
+}
+testElem.classList.toggle('active', true);
+if (!testElem.classList.contains('active')) {
+  throw new Error("Échec de classList.toggle(..., true)!");
+}
+console.log("✓ MockElement.classList validé sans récursion infinie !");
 
 // Vérification de la présence des fichiers clés
 const files = [

@@ -14,6 +14,14 @@ function escHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
+// Utilitaire de normalisation des chaînes pour recherche insensible aux accents et à la casse
+function normalizeStr(str) {
+  return String(str == null ? '' : str)
+    .replace(/[œŒ]/g, 'oe').replace(/[æÆ]/g, 'ae')
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase().trim();
+}
+
 // Nettoyage et formatage des formules mathématiques/LaTeX
 function formatMathFormula(str) {
   if (!str) return '';
@@ -81,46 +89,127 @@ function renderTableBlock(lines) {
   return tableHtml;
 }
 
-// Convertisseur Markdown léger et sécurisé en HTML
+// Parseur de listes Markdown (ordonnées, non-ordonnées et sous-puces imbriquées)
+function parseMarkdownLists(text) {
+  const lines = text.split('\n');
+  const result = [];
+  let currentList = null;
+
+  function flushList() {
+    if (!currentList) return;
+    const tag = currentList.type === 'ol' ? 'ol' : 'ul';
+    const clsAttr = currentList.type === 'ol' ? ' class="clinical-ordered-list"' : '';
+    let listHtml = `\n\n<${tag}${clsAttr}>\n`;
+    for (const item of currentList.items) {
+      if (item.subItems && item.subItems.length > 0) {
+        const subHtml = `\n<ul>\n${item.subItems.map(s => `  <li>${s}</li>`).join('\n')}\n</ul>\n`;
+        listHtml += `<li>${item.text}${subHtml}</li>\n`;
+      } else {
+        listHtml += `<li>${item.text}</li>\n`;
+      }
+    }
+    listHtml += `</${tag}>\n\n`;
+    result.push(listHtml);
+    currentList = null;
+  }
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const olMatch = line.match(/^(\d+)\.\s+(.*$)/);
+    const ulTopMatch = line.match(/^[•\-\*]\s+(.*$)/);
+    const ulSubMatch = line.match(/^\s{2,}[•\-\*]\s+(.*$)/);
+
+    if (ulSubMatch) {
+      if (currentList && currentList.items.length > 0) {
+        const lastItem = currentList.items[currentList.items.length - 1];
+        lastItem.subItems = lastItem.subItems || [];
+        lastItem.subItems.push(ulSubMatch[1]);
+      } else {
+        if (!currentList || currentList.type !== 'ul') {
+          flushList();
+          currentList = { type: 'ul', items: [] };
+        }
+        currentList.items.push({ text: ulSubMatch[1] });
+      }
+    } else if (olMatch) {
+      if (!currentList || currentList.type !== 'ol') {
+        flushList();
+        currentList = { type: 'ol', items: [] };
+      }
+      currentList.items.push({ text: olMatch[2] });
+    } else if (ulTopMatch) {
+      if (!currentList || currentList.type !== 'ul') {
+        flushList();
+        currentList = { type: 'ul', items: [] };
+      }
+      currentList.items.push({ text: ulTopMatch[1] });
+    } else {
+      if (line.trim() !== '' || (currentList && lines[i + 1] && !/^\s*(\d+\.|[•\-\*])\s/.test(lines[i + 1]))) {
+        flushList();
+      }
+      result.push(line);
+    }
+  }
+  flushList();
+  return result.join('\n');
+}
+
+// Convertisseur Markdown léger, sécurisé et cliniquement formaté en HTML
 function renderMarkdown(md) {
   if (!md) return '';
   let html = escHtml(md);
 
   // Mathématique inline / display
   html = html.replace(/\$\$(.+?)\$\$/gs, (match, p1) => {
-    return `<div class="math-display">📐 ${formatMathFormula(p1).trim()}</div>`;
+    return `\n\n<div class="math-display">📐 ${formatMathFormula(p1).trim()}</div>\n\n`;
   });
   html = html.replace(/\$(.+?)\$/g, (match, p1) => {
     return `<span class="math-inline">${formatMathFormula(p1).trim()}</span>`;
   });
 
-  // Titres ### et ##
-  html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
-  html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+  // Titres ###, ## et #
+  html = html.replace(/^### (.*$)/gim, '\n\n<h3>$1</h3>\n\n');
+  html = html.replace(/^## (.*$)/gim, '\n\n<h2>$1</h2>\n\n');
+  html = html.replace(/^# (.*$)/gim, '\n\n<h2>$1</h2>\n\n');
+
+  // Séparateurs de section horizontaux (---)
+  html = html.replace(/^\s*---+\s*$/gim, '\n\n<hr class="section-divider">\n\n');
+
+  // Badges AWaRe OMS
+  html = html.replace(/\[(ACCESS[^\]]*)\]/g, '<span class="badge-aware badge-access">$1</span>');
+  html = html.replace(/\[(WATCH[^\]]*)\]/g, '<span class="badge-aware badge-watch">$1</span>');
+  html = html.replace(/\[(RESERVE[^\]]*)\]/g, '<span class="badge-aware badge-reserve">$1</span>');
 
   // Alertes et Blockquotes (après escHtml, le symbole > est devenu &gt;)
   html = html.replace(/^(&gt;|>)\s*(.*$)/gim, '<blockquote>$2</blockquote>');
   html = html.replace(/<\/blockquote>\s*<blockquote>/gim, '<br>');
+  html = html.replace(/(<blockquote>[\s\S]*?<\/blockquote>)/gim, '\n\n$1\n\n');
 
-  // Gras et Italique
+  // Gras, Italique et Code inline
   html = html.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
   html = html.replace(/\*(.*?)\*/gim, '<em>$1</em>');
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
 
   // Tableaux Markdown
   html = parseMarkdownTables(html);
 
-  // Puces de listes
-  html = html.replace(/^[•\-\*] (.*$)/gim, '<li>$1</li>');
-
-  // Envelopper les <li> successifs dans des <ul>
-  html = html.replace(/(<li>[\s\S]*?<\/li>)(?!\s*<li>)/gim, '<ul>$1</ul>');
+  // Listes ordonnées et listes à puces (avec gestion des sous-puces indentées)
+  html = parseMarkdownLists(html);
 
   // Retours à la ligne doubles en paragraphes
   const parts = html.split(/\n\n+/);
   html = parts.map(p => {
     p = p.trim();
     if (!p) return '';
-    if (p.startsWith('<h') || p.startsWith('<ul') || p.startsWith('<blockquote') || p.startsWith('<div')) {
+    if (
+      p.startsWith('<h') ||
+      p.startsWith('<ul') ||
+      p.startsWith('<ol') ||
+      p.startsWith('<blockquote') ||
+      p.startsWith('<div') ||
+      p.startsWith('<hr') ||
+      p.startsWith('<table')
+    ) {
       return p;
     }
     return `<p>${p.replace(/\n/g, '<br>')}</p>`;
@@ -130,29 +219,85 @@ function renderMarkdown(md) {
 }
 
 
+
 // État global de l'application
+// Storage en mémoire de secours (fallback en cas de SecurityError ou QuotaExceededError)
+const memoryStore = {};
+
+function safeStorageGet(key) {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const val = localStorage.getItem(key);
+      if (val !== null) return val;
+    }
+  } catch (e) {
+    // Mode navigation privée ou iframe sandbox sans permissions de stockage
+  }
+  return Object.prototype.hasOwnProperty.call(memoryStore, key) ? memoryStore[key] : null;
+}
+
+function safeStorageSet(key, value) {
+  const str = String(value);
+  memoryStore[key] = str;
+  try {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(key, str);
+    }
+  } catch (e) {
+    // QuotaExceededError ou SecurityError - l'état persiste en mémoire
+  }
+}
+
+function safeStorageGetJSON(key, fallback) {
+  const val = safeStorageGet(key);
+  if (!val) return fallback;
+  try {
+    return JSON.parse(val);
+  } catch (e) {
+    console.warn(`[TRIMOBE] Données corrompues pour ${key}, réinitialisation.`);
+    return fallback;
+  }
+}
+
+function safeStorageSetJSON(key, value) {
+  try {
+    safeStorageSet(key, JSON.stringify(value));
+  } catch (e) {
+    console.warn(`[TRIMOBE] Erreur sérialisation pour ${key}:`, e);
+  }
+}
+
 const AppState = {
   currentManual: 'general', // 'general', 'geriatrie'
   currentView: 'home',      // 'home', 'chapter', 'fiche', 'drugs', 'calculators', 'checklist', 'urgences', 'favorites', 'references'
   activeItemId: null,
-  theme: localStorage.getItem('trimobe_theme') || 'light',
-  fontSizeIdx: parseInt(localStorage.getItem('trimobe_fontsize') || '1', 10),
-  favorites: JSON.parse(localStorage.getItem('trimobe_favorites') || '[]'),
-  checklistState: JSON.parse(localStorage.getItem('trimobe_checklist') || '{}'),
+  theme: safeStorageGet('trimobe_theme') || 'light',
+  fontSizeIdx: (() => {
+    const idx = parseInt(safeStorageGet('trimobe_fontsize') || '1', 10);
+    return (!isNaN(idx) && idx >= 0 && idx < 3) ? idx : 1;
+  })(),
+  favorites: safeStorageGetJSON('trimobe_favorites', []),
+  checklistState: safeStorageGetJSON('trimobe_checklist', {}),
   searchFilter: ''
 };
+
+if (typeof window !== 'undefined') {
+  window.AppState = AppState;
+}
 
 // Tailles de police supportées
 const FONT_SIZES = ['15px', '16.5px', '18.5px'];
 
-// Initialisation au chargement du DOM
-document.addEventListener('DOMContentLoaded', () => {
-  initTheme();
-  initFontSize();
-  initEventHandlers();
-  renderSidebarNav();
-  renderView('home');
-});
+// Initialisation au chargement du DOM (guard isomorphe pour tests Node.js)
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
+    initFontSize();
+    initEventHandlers();
+    renderSidebarNav();
+    renderView('home');
+  });
+}
 
 /* ==========================================================================
    GESTION DU THÈME & TYPOGRAPHIE
@@ -162,26 +307,90 @@ function initTheme() {
   const themeToggleBtn = document.getElementById('themeToggleBtn');
   if (themeToggleBtn) {
     themeToggleBtn.textContent = AppState.theme === 'dark' ? '☀️' : '🌙';
+    themeToggleBtn.setAttribute('aria-label', AppState.theme === 'dark' ? 'Passer au mode clair' : 'Passer au mode sombre');
+    themeToggleBtn.setAttribute('title', AppState.theme === 'dark' ? 'Passer au mode clair' : 'Passer au mode sombre');
+  }
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
+  if (metaTheme) {
+    metaTheme.setAttribute('content', AppState.theme === 'dark' ? '#090d16' : '#0284c7');
   }
 }
 
 function toggleTheme() {
   AppState.theme = AppState.theme === 'dark' ? 'light' : 'dark';
-  localStorage.setItem('trimobe_theme', AppState.theme);
+  safeStorageSet('trimobe_theme', AppState.theme);
   initTheme();
 }
 
 function initFontSize() {
-  document.documentElement.style.setProperty('--content-font-size', FONT_SIZES[AppState.fontSizeIdx]);
+  if (document.documentElement && document.documentElement.style) {
+    if (typeof document.documentElement.style.setProperty === 'function') {
+      document.documentElement.style.setProperty('--content-font-size', FONT_SIZES[AppState.fontSizeIdx]);
+    } else {
+      document.documentElement.style['--content-font-size'] = FONT_SIZES[AppState.fontSizeIdx];
+    }
+  }
 }
 
 function adjustFontSize(delta) {
   let newIdx = AppState.fontSizeIdx + delta;
   if (newIdx >= 0 && newIdx < FONT_SIZES.length) {
     AppState.fontSizeIdx = newIdx;
-    localStorage.setItem('trimobe_fontsize', newIdx);
+    safeStorageSet('trimobe_fontsize', newIdx);
     initFontSize();
   }
+}
+
+// Gestion du tiroir latéral mobile et du voile d'arrière-plan (backdrop)
+function toggleSidebar(forceOpen) {
+  const sidebar = document.getElementById('sidebar');
+  if (!sidebar) return;
+
+  let backdrop = document.getElementById('sidebarBackdrop');
+  if (!backdrop) {
+    backdrop = document.createElement('div');
+    backdrop.id = 'sidebarBackdrop';
+    backdrop.className = 'sidebar-backdrop';
+    backdrop.setAttribute('aria-hidden', 'true');
+    if (sidebar.parentNode) {
+      sidebar.parentNode.insertBefore(backdrop, sidebar.nextSibling);
+    } else if (document.body) {
+      document.body.appendChild(backdrop);
+    }
+    backdrop.addEventListener('click', () => toggleSidebar(false));
+  }
+
+  const mobileBtn = document.getElementById('mobileMenuBtn');
+  const isOpen = typeof forceOpen === 'boolean' ? forceOpen : !sidebar.classList.contains('open');
+
+  sidebar.classList.toggle('open', isOpen);
+  backdrop.classList.toggle('active', isOpen);
+
+  if (mobileBtn) {
+    mobileBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    mobileBtn.innerHTML = isOpen ? '✕' : '☰';
+    mobileBtn.setAttribute('title', isOpen ? 'Fermer le menu' : 'Ouvrir le menu');
+  }
+
+  if (document.body && document.body.classList) {
+    document.body.classList.toggle('sidebar-drawer-open', isOpen);
+  }
+}
+
+// Sécurise l'encapsulation de tout tableau dans un conteneur défilant horizontalement
+function ensureResponsiveTables(container) {
+  if (!container || typeof container.querySelectorAll !== 'function') return;
+  const tables = container.querySelectorAll('table');
+  tables.forEach(table => {
+    if (table.parentElement && !table.parentElement.classList.contains('table-responsive-wrapper') && !table.parentElement.classList.contains('table-responsive')) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'table-responsive-wrapper';
+      if (table.parentNode) {
+        table.parentNode.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+      }
+    }
+  });
 }
 
 /* ==========================================================================
@@ -215,11 +424,8 @@ function renderView(viewName, itemId = null) {
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  // Fermer la sidebar sur mobile après sélection
-  const sidebar = document.getElementById('sidebar');
-  if (sidebar && window.innerWidth < 900) {
-    sidebar.classList.remove('open');
-  }
+  // Fermer la sidebar et le backdrop sur mobile après sélection
+  toggleSidebar(false);
 
   switch (viewName) {
     case 'home':
@@ -252,6 +458,9 @@ function renderView(viewName, itemId = null) {
     default:
       stage.appendChild(renderHomeView());
   }
+
+  // Sécuriser l'encapsulation de tout tableau dans un conteneur défilant horizontalement (post-montage)
+  ensureResponsiveTables(stage);
 }
 
 function updateBreadcrumbs() {
@@ -296,7 +505,9 @@ function renderSidebarNav() {
   if (!navContainer) return;
   navContainer.innerHTML = '';
 
-  const query = AppState.searchFilter.toLowerCase().trim();
+  const rawQuery = AppState.searchFilter || '';
+  const query = normalizeStr(rawQuery);
+  const sQuery = query.replace(/[^a-z0-9]/g, '');
 
   if (AppState.currentManual === 'general') {
     // Rendu par catégories du manuel général
@@ -304,10 +515,14 @@ function renderSidebarNav() {
       const chapters = GENERAL_MANUAL_DATA.chapters.filter(ch => {
         const matchesCat = ch.category === cat.id;
         if (!query) return matchesCat;
+        const normTitle = normalizeStr(ch.title);
+        const normNum = normalizeStr(ch.num);
+        const normSummary = normalizeStr(ch.summary);
         return matchesCat && (
-          ch.title.toLowerCase().includes(query) ||
-          ch.num.toLowerCase().includes(query) ||
-          ch.summary.toLowerCase().includes(query)
+          normTitle.includes(query) ||
+          normNum.includes(query) ||
+          normSummary.includes(query) ||
+          (sQuery.length >= 3 && normTitle.replace(/[^a-z0-9]/g, '').includes(sQuery))
         );
       });
 
@@ -338,10 +553,14 @@ function renderSidebarNav() {
       const fiches = GERIATRIE_MANUAL_DATA.fiches.filter(f => {
         const matchesReg = f.registreId === reg.id;
         if (!query) return matchesReg;
+        const normTitle = normalizeStr(f.title);
+        const normNum = String(f.num);
+        const normSummary = normalizeStr(f.summary);
         return matchesReg && (
-          f.title.toLowerCase().includes(query) ||
-          String(f.num).includes(query) ||
-          f.summary.toLowerCase().includes(query)
+          normTitle.includes(query) ||
+          normNum.includes(query) ||
+          normSummary.includes(query) ||
+          (sQuery.length >= 3 && normTitle.replace(/[^a-z0-9]/g, '').includes(sQuery))
         );
       });
 
@@ -553,21 +772,27 @@ function renderDrugsView() {
       <div>
         <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--text-primary);">💊 Répertoire des DCI & Précautions</h2>
         <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem;">
-          Base de données des molécules usuelles (Chapitre XLV et fiches gériatriques) avec adaptations rénales et alertes de sécurité.
+          Base de données des molécules usuelles (Chapitre XLV et fiches gériatriques) avec adaptations rénales, classification OMS AWaRe et alertes de sécurité.
         </p>
       </div>
       <span class="card-tag">${DRUGS_DATA.length} molécules indexées</span>
     </div>
 
     <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap;">
-      <input type="text" id="drugSearchInput" class="form-input" style="flex: 2; min-width: 220px;" placeholder="Rechercher une DCI, une classe ou une indication..." oninput="filterDrugsTable()">
-      <select id="drugRenalFilter" class="form-select" style="flex: 1; min-width: 160px;" onchange="filterDrugsTable()">
+      <input type="text" id="drugSearchInput" class="form-input" style="flex: 2; min-width: 220px;" placeholder="Rechercher une DCI, une classe ou une indication..." oninput="applyDrugFilters()">
+      <select id="drugRenalFilter" class="form-select" style="flex: 1; min-width: 160px;" onchange="applyDrugFilters()">
         <option value="all">Toutes les fonctions rénales</option>
         <option value="renal_only">Adaptation rénale requise</option>
       </select>
-      <select id="drugRiskFilter" class="form-select" style="flex: 1; min-width: 160px;" onchange="filterDrugsTable()">
+      <select id="drugRiskFilter" class="form-select" style="flex: 1; min-width: 160px;" onchange="applyDrugFilters()">
         <option value="all">Tous les niveaux de risque</option>
         <option value="high_risk">Risque élevé en gériatrie</option>
+      </select>
+      <select id="filterDrugAware" class="form-select" style="flex: 1; min-width: 160px;" onchange="applyDrugFilters()">
+        <option value="all">Tous les statuts AWaRe</option>
+        <option value="access">Access</option>
+        <option value="watch">Watch</option>
+        <option value="reserve">Reserve</option>
       </select>
     </div>
 
@@ -588,29 +813,46 @@ function renderDrugsView() {
     </div>
   `;
 
-  setTimeout(() => filterDrugsTable(), 0);
+  setTimeout(() => applyDrugFilters(), 0);
   return container;
 }
 
-function filterDrugsTable() {
+function applyDrugFilters() {
   const tbody = document.getElementById('drugsTableBody');
   if (!tbody) return;
 
-  const query = (document.getElementById('drugSearchInput')?.value || '').toLowerCase().trim();
+  const rawQuery = (document.getElementById('drugSearchInput')?.value || '').trim();
+  const nQuery = normalizeStr(rawQuery);
+  const sQuery = nQuery.replace(/[^a-z0-9]/g, '');
+
   const renalFilter = document.getElementById('drugRenalFilter')?.value || 'all';
   const riskFilter = document.getElementById('drugRiskFilter')?.value || 'all';
+  const rawAware = (document.getElementById('filterDrugAware')?.value || 'all').trim();
+  const selectedAware = rawAware.toLowerCase();
 
   const filtered = DRUGS_DATA.filter(d => {
-    const matchesQuery = !query || 
-      d.dci.toLowerCase().includes(query) || 
-      d.class.toLowerCase().includes(query) || 
-      d.indication.toLowerCase().includes(query) ||
-      d.precautions.toLowerCase().includes(query);
+    let matchesQuery = true;
+    if (nQuery) {
+      const matchField = (txt) => {
+        if (!txt) return false;
+        const nTxt = normalizeStr(txt);
+        if (nTxt.includes(nQuery)) return true;
+        if (sQuery.length >= 3 && nTxt.replace(/[^a-z0-9]/g, '').includes(sQuery)) return true;
+        return false;
+      };
+      matchesQuery = matchField(d.dci) ||
+        matchField(d.class) ||
+        matchField(d.indication) ||
+        matchField(d.precautions) ||
+        matchField(d.dosage);
+    }
 
     const matchesRenal = renalFilter === 'all' || (renalFilter === 'renal_only' && d.renalAdaptation);
     const matchesRisk = riskFilter === 'all' || (riskFilter === 'high_risk' && (d.geriatricRisk.includes('Élevé') || d.geriatricRisk.includes('Très élevé')));
+    const matchesAware = (selectedAware === 'all' || selectedAware === 'tous' || !selectedAware) ? true :
+      (d.aware && (d.aware === selectedAware || d.aware.toLowerCase() === selectedAware));
 
-    return matchesQuery && matchesRenal && matchesRisk;
+    return matchesQuery && matchesRenal && matchesRisk && matchesAware;
   });
 
   if (filtered.length === 0) {
@@ -618,10 +860,18 @@ function filterDrugsTable() {
     return;
   }
 
-  tbody.innerHTML = filtered.map(d => `
+  tbody.innerHTML = filtered.map(d => {
+    const awareBadge = d.aware
+      ? `<span class="badge-aware badge-aware-${d.aware.toLowerCase()}">${d.aware.toUpperCase()}</span>`
+      : '';
+
+    return `
     <tr>
       <td>
-        <strong style="color: var(--brand-primary); font-size: 0.95rem;">${escHtml(d.dci)}</strong>
+        <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+          <strong style="color: var(--brand-primary); font-size: 0.95rem;">${escHtml(d.dci)}</strong>
+          ${awareBadge}
+        </div>
         <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">${escHtml(d.class)}</div>
       </td>
       <td>${escHtml(d.indication)}</td>
@@ -632,7 +882,13 @@ function filterDrugsTable() {
         <div style="font-size: 0.75rem; color: var(--text-secondary);">${escHtml(d.geriatricRisk)}</div>
       </td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
+}
+
+// Alias de compatibilité ascendante et descendante
+function filterDrugsTable() {
+  return applyDrugFilters();
 }
 
 /* ==========================================================================
@@ -815,6 +1071,91 @@ function renderCalculatorsView() {
         </div>
       </div>
     </div>
+
+    <!-- CALCULATEUR 5 : DÉFICIT EN EAU LIBRE (DÉSHYDRATATION HYPERNATRÉMIQUE) -->
+    <div class="interactive-tool-section">
+      <div class="tool-header-row">
+        <div>
+          <h2 style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary);">5. Déficit en Eau Libre (Déshydratation Hypernatrémique)</h2>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">Estimation du volume d'eau libre à compenser et prudence sur la vitesse de correction</p>
+        </div>
+        <span class="card-tag">Fiche Gériatrique 19</span>
+      </div>
+
+      <div class="calc-grid">
+        <div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+            <div class="form-group">
+              <label class="form-label" for="calcWaterWeight">Poids actuel (kg)</label>
+              <input type="number" id="calcWaterWeight" class="form-input" placeholder="ex: 60" step="0.5" value="60" oninput="runWaterDeficitCalc()">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="calcWaterNa">Natrémie mesurée (mmol/L)</label>
+              <input type="number" id="calcWaterNa" class="form-input" placeholder="ex: 155" step="1" value="155" oninput="runWaterDeficitCalc()">
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
+            <label class="checklist-item" style="margin: 0;">
+              <input type="checkbox" id="calcWaterElderly" class="checklist-checkbox" onchange="runWaterDeficitCalc()" checked>
+              <span class="checklist-text"><strong>Sujet âgé :</strong> Âge ≥ 65 ans (eau corporelle totale réduite)</span>
+            </label>
+            <label class="checklist-item" style="margin: 0;">
+              <input type="checkbox" id="calcWaterFemale" class="checklist-checkbox" onchange="runWaterDeficitCalc()">
+              <span class="checklist-text"><strong>Sexe féminin :</strong> Patient de sexe féminin</span>
+            </label>
+          </div>
+          <button type="button" id="btnRunWaterDeficit" class="btn btn-primary" style="width: 100%; padding: 0.6rem; font-weight: 600;" onclick="runWaterDeficitCalc()">
+            Calculer le Déficit en Eau Libre
+          </button>
+        </div>
+
+        <div class="calc-result-box" id="waterDeficitResult">
+          <!-- Résultat Déficit en Eau Libre injecté dynamiquement -->
+        </div>
+      </div>
+    </div>
+
+    <!-- CALCULATEUR 6 : CONVERTISSEUR HBA1C ↔ EAG & CIBLES CLINIQUES -->
+    <div class="interactive-tool-section">
+      <div class="tool-header-row">
+        <div>
+          <h2 style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary);">6. Convertisseur HbA1c ↔ eAG & Cibles Thérapeutiques</h2>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">Conversion bidirectionnelle selon la formule ADAG (Nathan et al.) et objectifs cibles</p>
+        </div>
+        <span class="card-tag">Recommandations ADA / HAS</span>
+      </div>
+
+      <div class="calc-grid">
+        <div>
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="calcHbA1cVal">Valeur mesurée</label>
+              <input type="number" id="calcHbA1cVal" class="form-input" placeholder="ex: 7.5" step="0.1" value="7.5" oninput="runHbA1cCalc()">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="calcHbA1cUnit">Unité</label>
+              <select id="calcHbA1cUnit" class="form-select" onchange="runHbA1cCalc()">
+                <option value="percent" selected>HbA1c (%)</option>
+                <option value="mg_dl">eAG (mg/dL)</option>
+                <option value="mmol_l">eAG (mmol/L)</option>
+              </select>
+            </div>
+          </div>
+          <div style="background: var(--bg-primary); padding: 0.75rem; border-radius: var(--radius-md); font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 1rem;">
+            <strong>Repères d'objectifs cibles :</strong><br>
+            • Adulte jeune / Diabète récent : <strong>&lt; 7,0%</strong> (eAG &lt; 154 mg/dL)<br>
+            • Sujet âgé fragile / polypathologique : <strong>7,5 à 8,5%</strong> (eAG 169 à 197 mg/dL)
+          </div>
+          <button type="button" id="btnRunHbA1c" class="btn btn-primary" style="width: 100%; padding: 0.6rem; font-weight: 600;" onclick="runHbA1cCalc()">
+            Calculer l'équivalence glycémique
+          </button>
+        </div>
+
+        <div class="calc-result-box" id="hba1cResult">
+          <!-- Résultat HbA1c ↔ eAG injecté dynamiquement -->
+        </div>
+      </div>
+    </div>
   `;
 
   setTimeout(() => {
@@ -822,117 +1163,240 @@ function renderCalculatorsView() {
     runCockcroftCalc();
     runCRB65Calc();
     runGlucoseCalc();
+    runWaterDeficitCalc();
+    runHbA1cCalc();
+    setupCalculatorsEvents();
   }, 0);
 
   return container;
 }
 
 function runPediatricCalc() {
-  const w = document.getElementById('pedWeight')?.value;
-  const d = document.getElementById('pedDoseKg')?.value;
-  const t = document.getElementById('pedTimes')?.value;
-  const c = document.getElementById('pedConc')?.value;
-  const box = document.getElementById('pediatricResult');
-  if (!box) return;
+  try {
+    const w = document.getElementById('pedWeight')?.value;
+    const d = document.getElementById('pedDoseKg')?.value;
+    const t = document.getElementById('pedTimes')?.value;
+    const c = document.getElementById('pedConc')?.value;
+    const box = document.getElementById('pediatricResult');
+    if (!box) return;
 
-  const res = Calculators.calculatePediatric(w, d, t, c);
-  if (res.error) {
-    box.innerHTML = `<div style="color: var(--danger);">${escHtml(res.error)}</div>`;
-    return;
-  }
+    const res = Calculators.calculatePediatric(w, d, t, c);
+    if (res.error) {
+      box.innerHTML = `<div class="alert-card alert-danger">${escHtml(res.error)}</div>`;
+      return;
+    }
 
-  box.innerHTML = `
-    <span class="calc-result-badge info">Posologie Pédiatrique Calculée</span>
-    <div class="calc-result-value">${res.dosePerTakeMg} mg / prise</div>
-    <div style="font-size: 0.95rem; color: var(--text-primary); margin-bottom: 0.5rem;">
-      Soit un total quotidien de : <strong>${res.totalDailyMg} mg / jour</strong>
-    </div>
-    ${res.mlPerTake ? `
-      <div style="padding: 0.5rem 0.75rem; background: var(--bg-surface); border-radius: var(--radius-sm); border: 1px solid var(--border-medium); margin-top: 0.5rem;">
-        Volume de sirop à administrer : <strong style="color: var(--brand-primary); font-size: 1.1rem;">${res.mlPerTake} mL</strong> par prise<br>
-        <span style="font-size: 0.75rem; color: var(--text-muted);">(Espacer les prises de ${res.intervalHours} heures)</span>
+    box.innerHTML = `
+      <span class="calc-result-badge info">Posologie Pédiatrique Calculée</span>
+      <div class="calc-result-value">${res.dosePerTakeMg} mg / prise</div>
+      <div style="font-size: 0.95rem; color: var(--text-primary); margin-bottom: 0.5rem;">
+        Soit un total quotidien de : <strong>${res.totalDailyMg} mg / jour</strong>
       </div>
-    ` : ''}
-  `;
+      ${res.mlPerTake ? `
+        <div style="padding: 0.5rem 0.75rem; background: var(--bg-surface); border-radius: var(--radius-sm); border: 1px solid var(--border-medium); margin-top: 0.5rem;">
+          Volume de sirop à administrer : <strong style="color: var(--brand-primary); font-size: 1.1rem;">${res.mlPerTake} mL</strong> par prise<br>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">(Espacer les prises de ${res.intervalHours} heures)</span>
+        </div>
+      ` : ''}
+    `;
+  } catch (err) {
+    const box = document.getElementById('pediatricResult');
+    if (box) box.innerHTML = `<div class="alert-card alert-danger">Erreur de saisie : paramètres invalides.</div>`;
+  }
 }
 
 function runCockcroftCalc() {
-  const age = document.getElementById('cgAge')?.value;
-  const w = document.getElementById('cgWeight')?.value;
-  const creat = document.getElementById('cgCreat')?.value;
-  const unit = document.getElementById('cgUnit')?.value;
-  const isFem = document.getElementById('cgSex')?.value === 'female';
-  const box = document.getElementById('cockcroftResult');
-  if (!box) return;
+  try {
+    const age = document.getElementById('cgAge')?.value;
+    const w = document.getElementById('cgWeight')?.value;
+    const creat = document.getElementById('cgCreat')?.value;
+    const unit = document.getElementById('cgUnit')?.value;
+    const isFem = document.getElementById('cgSex')?.value === 'female';
+    const box = document.getElementById('cockcroftResult');
+    if (!box) return;
 
-  const res = Calculators.calculateCockcroft(age, w, creat, unit, isFem);
-  if (res.error) {
-    box.innerHTML = `<div style="color: var(--danger);">${escHtml(res.error)}</div>`;
-    return;
-  }
+    const res = Calculators.calculateCockcroft(age, w, creat, unit, isFem);
+    if (res.error) {
+      box.innerHTML = `<div class="alert-card alert-danger">${escHtml(res.error)}</div>`;
+      return;
+    }
 
-  box.innerHTML = `
-    <span class="calc-result-badge ${res.alertClass}">${escHtml(res.stage)}</span>
-    <div class="calc-result-value">${res.clCr} mL/min</div>
-    <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">
-      ${escHtml(res.interpretation)}
-    </div>
-    ${res.isSarcopenicWarning ? `
-      <div style="margin-top: 0.5rem; padding: 0.4rem 0.6rem; background: var(--warning-bg); border: 1px solid var(--warning-border); border-radius: 4px; font-size: 0.75rem; color: var(--warning);">
-        ⚠️ <strong>Alerte Sarcopénie :</strong> Chez ce patient âgé, une créatinine basse peut sous-estimer considérablement l'atteinte rénale réelle.
+    box.innerHTML = `
+      <span class="calc-result-badge ${res.alertClass}">${escHtml(res.stage)}</span>
+      <div class="calc-result-value">${res.clCr} mL/min</div>
+      <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">
+        ${escHtml(res.interpretation)}
       </div>
-    ` : ''}
-  `;
+      ${res.isSarcopenicWarning ? `
+        <div style="margin-top: 0.5rem; padding: 0.4rem 0.6rem; background: var(--warning-bg); border: 1px solid var(--warning-border); border-radius: 4px; font-size: 0.75rem; color: var(--warning);">
+          ⚠️ <strong>Alerte Sarcopénie :</strong> Chez ce patient âgé, une créatinine basse peut sous-estimer considérablement l'atteinte rénale réelle.
+        </div>
+      ` : ''}
+    `;
+  } catch (err) {
+    const box = document.getElementById('cockcroftResult');
+    if (box) box.innerHTML = `<div class="alert-card alert-danger">Erreur de saisie : paramètres invalides.</div>`;
+  }
 }
 
 function runCRB65Calc() {
-  const c = document.getElementById('crbC')?.checked;
-  const r = document.getElementById('crbR')?.checked;
-  const b = document.getElementById('crbB')?.checked;
-  const age = document.getElementById('crbAge')?.checked;
-  const box = document.getElementById('crb65Result');
-  if (!box) return;
+  try {
+    const c = document.getElementById('crbC')?.checked;
+    const r = document.getElementById('crbR')?.checked;
+    const b = document.getElementById('crbB')?.checked;
+    const age = document.getElementById('crbAge')?.checked;
+    const box = document.getElementById('crb65Result');
+    if (!box) return;
 
-  const res = Calculators.calculateCRB65(c, r, b, age);
+    const res = Calculators.calculateCRB65(c, r, b, age);
 
-  box.innerHTML = `
-    <span class="calc-result-badge ${res.alertClass}">${escHtml(res.riskLevel)}</span>
-    <div class="calc-result-value">Score : ${res.score} / 4</div>
-    <div style="font-size: 0.88rem; color: var(--text-primary); font-weight: 600; margin-top: 0.35rem;">
-      ${escHtml(res.recommendation)}
-    </div>
-  `;
+    box.innerHTML = `
+      <span class="calc-result-badge ${res.alertClass}">${escHtml(res.riskLevel)}</span>
+      <div class="calc-result-value">Score : ${res.score} / 4</div>
+      <div style="font-size: 0.88rem; color: var(--text-primary); font-weight: 600; margin-top: 0.35rem;">
+        ${escHtml(res.recommendation)}
+      </div>
+    `;
+  } catch (err) {
+    const box = document.getElementById('crb65Result');
+    if (box) box.innerHTML = `<div class="alert-card alert-danger">Erreur d'évaluation du score.</div>`;
+  }
 }
 
 function runGlucoseCalc() {
-  const val = document.getElementById('glucVal')?.value;
-  const unit = document.getElementById('glucUnit')?.value;
-  const box = document.getElementById('glucoseResult');
-  if (!box) return;
+  try {
+    const val = document.getElementById('glucVal')?.value;
+    const unit = document.getElementById('glucUnit')?.value;
+    const box = document.getElementById('glucoseResult');
+    if (!box) return;
 
-  const res = Calculators.convertGlucose(val, unit);
-  if (res.error) {
-    box.innerHTML = `<div style="color: var(--danger);">${escHtml(res.error)}</div>`;
-    return;
+    const res = Calculators.convertGlucose(val, unit);
+    if (res.error) {
+      box.innerHTML = `<div class="alert-card alert-danger">${escHtml(res.error)}</div>`;
+      return;
+    }
+
+    box.innerHTML = `
+      <span class="calc-result-badge ${res.alertClass}">${escHtml(res.status)}</span>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin: 0.5rem 0;">
+        <div style="background: var(--bg-surface); padding: 0.4rem; border-radius: 4px; text-align: center; border: 1px solid var(--border-subtle);">
+          <span style="font-size: 0.7rem; color: var(--text-muted); display: block;">g/L</span>
+          <strong>${res.gPerL}</strong>
+        </div>
+        <div style="background: var(--bg-surface); padding: 0.4rem; border-radius: 4px; text-align: center; border: 1px solid var(--border-subtle);">
+          <span style="font-size: 0.7rem; color: var(--text-muted); display: block;">mmol/L</span>
+          <strong>${res.mmolL}</strong>
+        </div>
+        <div style="background: var(--bg-surface); padding: 0.4rem; border-radius: 4px; text-align: center; border: 1px solid var(--border-subtle);">
+          <span style="font-size: 0.7rem; color: var(--text-muted); display: block;">mg/dL</span>
+          <strong>${res.mgDl}</strong>
+        </div>
+      </div>
+      ${res.note ? `
+        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.35rem; line-height: 1.4;">
+          ${escHtml(res.note)}
+        </div>
+      ` : ''}
+    `;
+  } catch (err) {
+    const box = document.getElementById('glucoseResult');
+    if (box) box.innerHTML = `<div class="alert-card alert-danger">Erreur de saisie glycémique.</div>`;
   }
+}
 
-  box.innerHTML = `
-    <span class="calc-result-badge ${res.alertClass}">${escHtml(res.status)}</span>
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin: 0.5rem 0;">
-      <div style="background: var(--bg-surface); padding: 0.4rem; border-radius: 4px; text-align: center;">
-        <span style="font-size: 0.7rem; color: var(--text-muted); display: block;">g/L</span>
-        <strong>${res.gPerL}</strong>
+function runWaterDeficitCalc() {
+  try {
+    const w = document.getElementById('calcWaterWeight')?.value;
+    const na = document.getElementById('calcWaterNa')?.value;
+    const elderlyEl = document.getElementById('calcWaterElderly');
+    const isElderly = elderlyEl ? (elderlyEl.type === 'checkbox' ? elderlyEl.checked : (elderlyEl.value === 'true' || elderlyEl.value === '1')) : true;
+    const femaleEl = document.getElementById('calcWaterFemale');
+    const isFemale = femaleEl ? (femaleEl.type === 'checkbox' ? femaleEl.checked : (femaleEl.value === 'female' || femaleEl.value === 'true' || femaleEl.value === '1')) : false;
+    const box = document.getElementById('waterDeficitResult');
+    if (!box) return;
+
+    const res = Calculators.calculateWaterDeficit(w, na, isElderly, isFemale);
+    if (res.error) {
+      box.innerHTML = `<div class="alert-card alert-danger">${escHtml(res.error)}</div>`;
+      return;
+    }
+
+    box.innerHTML = `
+      <span class="calc-result-badge warning">Déficit en Eau Libre Estimé</span>
+      <div class="calc-result-value">${res.deficitLiters} Litres</div>
+      <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+        Coefficient d'eau corporelle totale utilisé : <strong>${res.factor}</strong> (${isElderly ? 'sujet âgé' : 'adulte jeune'}, ${isFemale ? 'femme' : 'homme'})
       </div>
-      <div style="background: var(--bg-surface); padding: 0.4rem; border-radius: 4px; text-align: center;">
-        <span style="font-size: 0.7rem; color: var(--text-muted); display: block;">mmol/L</span>
-        <strong>${res.mmolL}</strong>
+      <div class="alert-card alert-warning">
+        ⚠️ <strong>Prudence réhydratation :</strong> ${escHtml(res.advice)}
       </div>
-      <div style="background: var(--bg-surface); padding: 0.4rem; border-radius: 4px; text-align: center;">
-        <span style="font-size: 0.7rem; color: var(--text-muted); display: block;">mg/dL</span>
-        <strong>${res.mgDl}</strong>
+    `;
+  } catch (err) {
+    const box = document.getElementById('waterDeficitResult');
+    if (box) box.innerHTML = `<div class="alert-card alert-danger">Erreur de calcul du déficit en eau libre.</div>`;
+  }
+}
+
+function runHbA1cCalc() {
+  try {
+    const val = document.getElementById('calcHbA1cVal')?.value;
+    const unit = document.getElementById('calcHbA1cUnit')?.value || 'percent';
+    const box = document.getElementById('hba1cResult');
+    if (!box) return;
+
+    const res = Calculators.convertHbA1c(val, unit);
+    if (res.error) {
+      box.innerHTML = `<div class="alert-card alert-danger">${escHtml(res.error)}</div>`;
+      return;
+    }
+
+    box.innerHTML = `
+      <span class="calc-result-badge ${res.alertClass}">${escHtml(res.targetStatus)}</span>
+      <div class="calc-result-value">${res.hba1cPercent} %</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin: 0.5rem 0;">
+        <div style="background: var(--bg-surface); padding: 0.5rem; border-radius: 4px; text-align: center; border: 1px solid var(--border-subtle);">
+          <span style="font-size: 0.72rem; color: var(--text-muted); display: block;">Glycémie moyenne (eAG)</span>
+          <strong style="color: var(--brand-primary); font-size: 1.1rem;">${res.eagMgDl}</strong> mg/dL
+        </div>
+        <div style="background: var(--bg-surface); padding: 0.5rem; border-radius: 4px; text-align: center; border: 1px solid var(--border-subtle);">
+          <span style="font-size: 0.72rem; color: var(--text-muted); display: block;">Glycémie moyenne (eAG)</span>
+          <strong style="color: var(--brand-primary); font-size: 1.1rem;">${res.eagMmolL}</strong> mmol/L
+        </div>
       </div>
-    </div>
-  `;
+      <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.35rem; line-height: 1.4;">
+        ${escHtml(res.note)}
+      </div>
+    `;
+  } catch (err) {
+    const box = document.getElementById('hba1cResult');
+    if (box) box.innerHTML = `<div class="alert-card alert-danger">Erreur de conversion HbA1c.</div>`;
+  }
+}
+
+function setupCalculatorsEvents() {
+  const btnPed = document.getElementById('btnRunPediatric');
+  if (btnPed) btnPed.onclick = () => runPediatricCalc();
+
+  const btnCg = document.getElementById('btnRunCockcroft');
+  if (btnCg) btnCg.onclick = () => runCockcroftCalc();
+
+  const btnCrb = document.getElementById('btnRunCRB65');
+  if (btnCrb) btnCrb.onclick = () => runCRB65Calc();
+
+  const btnGluc = document.getElementById('btnRunGlucose');
+  if (btnGluc) btnGluc.onclick = () => runGlucoseCalc();
+
+  const btnWater = document.getElementById('btnRunWaterDeficit');
+  if (btnWater) btnWater.onclick = () => runWaterDeficitCalc();
+
+  const btnHbA1c = document.getElementById('btnRunHbA1c');
+  if (btnHbA1c) btnHbA1c.onclick = () => runHbA1cCalc();
+}
+
+if (typeof window !== 'undefined') {
+  window.runWaterDeficitCalc = runWaterDeficitCalc;
+  window.runHbA1cCalc = runHbA1cCalc;
+  window.setupCalculatorsEvents = setupCalculatorsEvents;
 }
 
 /* ==========================================================================
@@ -981,9 +1445,9 @@ function renderChecklistView() {
       `).join('')}
     </div>
 
-    <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem; justify-content: flex-end;">
+    <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem; justify-content: flex-end; align-items: center;">
       <button class="tool-nav-btn" onclick="resetChecklist()">Réinitialiser</button>
-      <button class="tool-nav-btn" style="background: var(--brand-primary); color: #fff;" onclick="copyChecklistNote()">📋 Copier la note de sécurité</button>
+      <button id="copyChecklistBtn" class="tool-nav-btn" style="background: var(--brand-primary); color: #fff;" onclick="copyChecklistNote()">📋 Copier la note de sécurité</button>
     </div>
   `;
 
@@ -992,22 +1456,89 @@ function renderChecklistView() {
 
 function toggleChecklistItem(cid) {
   AppState.checklistState[cid] = !AppState.checklistState[cid];
-  localStorage.setItem('trimobe_checklist', JSON.stringify(AppState.checklistState));
+  safeStorageSetJSON('trimobe_checklist', AppState.checklistState);
   renderView('checklist');
 }
 
 function resetChecklist() {
   AppState.checklistState = {};
-  localStorage.setItem('trimobe_checklist', JSON.stringify({}));
+  safeStorageSetJSON('trimobe_checklist', {});
   renderView('checklist');
+}
+
+function showCopyFeedback() {
+  const btn = document.getElementById('copyChecklistBtn');
+  if (btn) {
+    if (!btn._originalHtml) {
+      btn._originalHtml = btn.innerHTML;
+    }
+    btn.innerHTML = '✓ Synthèse copiée !';
+    btn.style.background = 'var(--success)';
+    clearTimeout(btn._feedbackTimer);
+    btn._feedbackTimer = setTimeout(() => {
+      if (btn) {
+        btn.innerHTML = btn._originalHtml;
+        btn.style.background = 'var(--brand-primary)';
+        btn._originalHtml = null;
+      }
+    }, 2500);
+  }
+  if (typeof alert === 'function') {
+    try {
+      alert("Note de conformité copiée dans le presse-papiers !");
+    } catch (e) {
+      // Ignorer si alert est indisponible
+    }
+  }
+}
+
+function fallbackCopyText(text) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    ta.style.top = '-9999px';
+    ta.setAttribute('readonly', '');
+    if (document.body && typeof document.body.appendChild === 'function') {
+      document.body.appendChild(ta);
+    }
+    if (typeof ta.select === 'function') {
+      ta.select();
+    }
+    let success = false;
+    if (typeof document.execCommand === 'function') {
+      success = document.execCommand('copy');
+    }
+    if (typeof window !== 'undefined' && typeof window._lastCopied !== 'undefined') {
+      window._lastCopied = text;
+    }
+    if (document.body && typeof document.body.removeChild === 'function') {
+      try {
+        document.body.removeChild(ta);
+      } catch (e) {}
+    }
+    showCopyFeedback();
+    return success;
+  } catch (err) {
+    console.warn("Échec de la copie fallback :", err);
+    showCopyFeedback();
+  }
 }
 
 function copyChecklistNote() {
   const note = `[Sécurité Ordonnance - Collection TRIMOBE]\n` +
     `Check-list 10 points validée le ${new Date().toLocaleDateString('fr-FR')} : Conforme aux règles d'or de prescription rationnelle.`;
-  navigator.clipboard.writeText(note).then(() => {
-    alert("Note de conformité copiée dans le presse-papiers !");
-  });
+
+  if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+    navigator.clipboard.writeText(note).then(() => {
+      showCopyFeedback();
+    }).catch(() => {
+      fallbackCopyText(note);
+    });
+  } else {
+    fallbackCopyText(note);
+  }
 }
 
 /* ==========================================================================
@@ -1081,7 +1612,7 @@ function toggleFavorite(id) {
   } else {
     AppState.favorites.push(id);
   }
-  localStorage.setItem('trimobe_favorites', JSON.stringify(AppState.favorites));
+  safeStorageSetJSON('trimobe_favorites', AppState.favorites);
 
   if (AppState.currentView === 'chapter') {
     renderView('chapter', AppState.activeItemId);
@@ -1236,12 +1767,150 @@ function closeSearchModal() {
   if (modal) modal.classList.remove('active');
 }
 
+let globalSearchIndex = null;
+
+function buildSearchIndex() {
+  const index = [];
+
+  // 1. Chapitres de Médecine Générale
+  if (typeof GENERAL_MANUAL_DATA !== 'undefined' && GENERAL_MANUAL_DATA.chapters) {
+    GENERAL_MANUAL_DATA.chapters.forEach(ch => {
+      const normTitle = normalizeStr(ch.title);
+      const normSummary = normalizeStr(ch.summary);
+      const normContent = normalizeStr(ch.content);
+      index.push({
+        type: 'general',
+        id: ch.num,
+        title: `Ch. ${ch.num} - ${ch.title}`,
+        snippet: ch.summary || (ch.content ? ch.content.substring(0, 140) + '...' : ''),
+        isUrgent: !!ch.isUrgent,
+        normTitle,
+        cleanTitle: normTitle.replace(/[^a-z0-9]/g, ''),
+        normSummary,
+        cleanSummary: normSummary.replace(/[^a-z0-9]/g, ''),
+        normContent,
+        cleanContent: normContent.replace(/[^a-z0-9]/g, ''),
+        normNum: normalizeStr(ch.num)
+      });
+    });
+  }
+
+  // 2. Fiches de Gériatrie
+  if (typeof GERIATRIE_MANUAL_DATA !== 'undefined' && GERIATRIE_MANUAL_DATA.fiches) {
+    GERIATRIE_MANUAL_DATA.fiches.forEach(f => {
+      const normTitle = normalizeStr(f.title);
+      const normSummary = normalizeStr(f.summary);
+      const normContent = normalizeStr(f.content);
+      index.push({
+        type: 'geriatrie',
+        id: f.num,
+        title: `Fiche ${f.num} (Gériatrie) - ${f.title}`,
+        snippet: f.summary || (f.content ? f.content.substring(0, 140) + '...' : ''),
+        isUrgent: !!f.isUrgent,
+        normTitle,
+        cleanTitle: normTitle.replace(/[^a-z0-9]/g, ''),
+        normSummary,
+        cleanSummary: normSummary.replace(/[^a-z0-9]/g, ''),
+        normContent,
+        cleanContent: normContent.replace(/[^a-z0-9]/g, ''),
+        normNum: String(f.num)
+      });
+    });
+  }
+
+  // 3. Répertoire des DCI
+  if (typeof DRUGS_DATA !== 'undefined' && Array.isArray(DRUGS_DATA)) {
+    DRUGS_DATA.forEach(d => {
+      const normDci = normalizeStr(d.dci);
+      const normClass = normalizeStr(d.class);
+      const normInd = normalizeStr(d.indication);
+      const normPrec = normalizeStr(d.precautions);
+      const normDosage = normalizeStr(d.dosage);
+      index.push({
+        type: 'drug',
+        id: d.dci,
+        title: `💊 DCI : ${d.dci} (${d.class})`,
+        snippet: `Indication: ${d.indication} | Dose: ${d.dosage}`,
+        isUrgent: false,
+        normTitle: normDci,
+        cleanTitle: normDci.replace(/[^a-z0-9]/g, ''),
+        normSummary: normInd,
+        cleanSummary: normInd.replace(/[^a-z0-9]/g, ''),
+        normContent: `${normClass} ${normPrec} ${normDosage}`,
+        cleanContent: `${normClass} ${normPrec}`.replace(/[^a-z0-9]/g, ''),
+        normNum: ''
+      });
+    });
+  }
+
+  globalSearchIndex = index;
+  return index;
+}
+
+function getSearchIndex() {
+  if (!globalSearchIndex || globalSearchIndex.length === 0) {
+    globalSearchIndex = buildSearchIndex();
+  }
+  return globalSearchIndex;
+}
+
+function performGlobalSearch(query) {
+  const nq = normalizeStr(query);
+  if (!nq) return [];
+  const sq = nq.replace(/[^a-z0-9]/g, '');
+  const words = nq.split(/\s+/).filter(w => w.length > 0);
+
+  const index = getSearchIndex();
+  const results = [];
+
+  for (let i = 0; i < index.length; i++) {
+    const item = index[i];
+    let score = 0;
+
+    if (item.normTitle === nq) {
+      score = 400;
+    } else if (item.normTitle.startsWith(nq)) {
+      score = 300;
+    } else if (item.normTitle.includes(nq)) {
+      score = 200;
+    } else if (sq.length >= 3 && item.cleanTitle.includes(sq)) {
+      score = 180;
+    } else if (item.normSummary.includes(nq)) {
+      score = 120;
+    } else if (sq.length >= 3 && item.cleanSummary.includes(sq)) {
+      score = 100;
+    } else if (item.normNum && (item.normNum === nq || item.normNum === sq)) {
+      score = 250;
+    } else if (item.normContent.includes(nq)) {
+      score = 40;
+    } else if (sq.length >= 3 && item.cleanContent.includes(sq)) {
+      score = 30;
+    } else if (words.length > 1 && words.every(w => item.normTitle.includes(w) || item.normSummary.includes(w) || item.normContent.includes(w))) {
+      score = 90;
+    }
+
+    if (score > 0) {
+      results.push({
+        type: item.type,
+        id: item.id,
+        title: item.title,
+        snippet: item.snippet,
+        isUrgent: item.isUrgent,
+        score
+      });
+    }
+  }
+
+  results.sort((a, b) => b.score - a.score);
+  return results;
+}
+
 function renderSearchResults(query) {
   const list = document.getElementById('modalResultsList');
   if (!list) return;
 
-  const q = query.toLowerCase().trim();
-  if (!q) {
+  const trimmed = (query || '').trim();
+  if (!trimmed) {
     list.innerHTML = `
       <div style="padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
         Tapez un mot-clé (ex: <em>hypertension, metformine, delirium, paracétamol, amoxicilline, urgence</em>)...
@@ -1250,51 +1919,12 @@ function renderSearchResults(query) {
     return;
   }
 
-  const results = [];
-
-  // Recherche dans les chapitres de Médecine Générale
-  GENERAL_MANUAL_DATA.chapters.forEach(ch => {
-    if (ch.title.toLowerCase().includes(q) || ch.summary.toLowerCase().includes(q) || ch.content.toLowerCase().includes(q)) {
-      results.push({
-        type: 'general',
-        id: ch.num,
-        title: `Ch. ${ch.num} - ${ch.title}`,
-        snippet: ch.summary || ch.content.substring(0, 140) + '...',
-        isUrgent: ch.isUrgent
-      });
-    }
-  });
-
-  // Recherche dans les fiches de Gériatrie
-  GERIATRIE_MANUAL_DATA.fiches.forEach(f => {
-    if (f.title.toLowerCase().includes(q) || f.summary.toLowerCase().includes(q) || f.content.toLowerCase().includes(q)) {
-      results.push({
-        type: 'geriatrie',
-        id: f.num,
-        title: `Fiche ${f.num} (Gériatrie) - ${f.title}`,
-        snippet: f.summary || f.content.substring(0, 140) + '...',
-        isUrgent: f.isUrgent
-      });
-    }
-  });
-
-  // Recherche dans les DCI
-  DRUGS_DATA.forEach(d => {
-    if (d.dci.toLowerCase().includes(q) || d.indication.toLowerCase().includes(q) || d.class.toLowerCase().includes(q)) {
-      results.push({
-        type: 'drug',
-        id: d.dci,
-        title: `💊 DCI : ${d.dci} (${d.class})`,
-        snippet: `Indication: ${d.indication} | Dose: ${d.dosage}`,
-        isUrgent: false
-      });
-    }
-  });
+  const results = performGlobalSearch(trimmed);
 
   if (results.length === 0) {
     list.innerHTML = `
       <div style="padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
-        Aucun résultat trouvé pour « <strong>${escHtml(query)}</strong> ».
+        Aucun résultat trouvé pour « <strong>${escHtml(trimmed)}</strong> ».
       </div>
     `;
     return;
@@ -1326,7 +1956,7 @@ function onSearchResultClick(type, id) {
       const searchInput = document.getElementById('drugSearchInput');
       if (searchInput) {
         searchInput.value = id;
-        filterDrugsTable();
+        applyDrugFilters();
       }
     }, 50);
   }
@@ -1344,6 +1974,7 @@ function initEventHandlers() {
     }
     if (e.key === 'Escape') {
       closeSearchModal();
+      toggleSidebar(false);
     }
   });
 
@@ -1356,12 +1987,60 @@ function initEventHandlers() {
     });
   }
 
-  // Toggle menu mobile
+  // Toggle menu mobile et gestion du backdrop overlay
   const mobileBtn = document.getElementById('mobileMenuBtn');
-  const sidebar = document.getElementById('sidebar');
-  if (mobileBtn && sidebar) {
-    mobileBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('open');
+  if (mobileBtn) {
+    mobileBtn.addEventListener('click', (e) => {
+      if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+      toggleSidebar();
     });
   }
+
+  const backdrop = document.getElementById('sidebarBackdrop');
+  if (backdrop) {
+    backdrop.addEventListener('click', () => {
+      toggleSidebar(false);
+    });
+  }
+}
+
+// Exposer les utilitaires globaux pour exécution browser et tests automatisés
+if (typeof window !== 'undefined') {
+  window.AppState = AppState;
+  window.normalizeStr = normalizeStr;
+  window.performGlobalSearch = performGlobalSearch;
+  window.buildSearchIndex = buildSearchIndex;
+  window.applyDrugFilters = applyDrugFilters;
+  window.filterDrugsTable = applyDrugFilters;
+  window.toggleSidebar = toggleSidebar;
+  window.ensureResponsiveTables = ensureResponsiveTables;
+  window.safeStorageGet = safeStorageGet;
+  window.safeStorageSet = safeStorageSet;
+  window.safeStorageGetJSON = safeStorageGetJSON;
+  window.safeStorageSetJSON = safeStorageSetJSON;
+  window.memoryStore = memoryStore;
+  window.copyChecklistNote = copyChecklistNote;
+  window.showCopyFeedback = showCopyFeedback;
+  window.fallbackCopyText = fallbackCopyText;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    AppState,
+    normalizeStr,
+    performGlobalSearch,
+    buildSearchIndex,
+    applyDrugFilters,
+    filterDrugsTable: applyDrugFilters,
+    toggleSidebar,
+    ensureResponsiveTables,
+    safeStorageGet,
+    safeStorageSet,
+    safeStorageGetJSON,
+    safeStorageSetJSON,
+    memoryStore,
+    copyChecklistNote,
+    showCopyFeedback,
+    fallbackCopyText
+  };
 }

@@ -1,9 +1,11 @@
 /**
  * BASE DE DONNÉES DES DCI (MÉDICAMENTS COURANTS & GÉRIATRIE)
+ * Répertoire enrichi de 78 molécules avec classifications OMS AWaRe et critères STOPP/Beers
  * Données issues du Chapitre XLV du Manuel Général et des fiches de Gériatrie
  */
 
 const DRUGS_DATA = [
+  // --- 44 MOLECULES INITIALES MISES À JOUR ---
   {
     dci: "Amlodipine",
     class: "Inhibiteur calcique dihydropyridinique",
@@ -13,6 +15,8 @@ const DRUGS_DATA = [
     renalAdaptation: false,
     renalNote: "Pas d'adaptation nécessaire en cas d'insuffisance rénale.",
     geriatricRisk: "Modéré (surveiller œdèmes et hypotension orthostatique)",
+    aware: null,
+    stoppBeers: null,
     manuals: ["general", "geriatrie"]
   },
   {
@@ -24,6 +28,8 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "Adapter l'intervalle des prises si DFG < 30 mL/min.",
     geriatricRisk: "Faible (molécule Access OMS)",
+    aware: "access",
+    stoppBeers: null,
     manuals: ["general", "geriatrie"]
   },
   {
@@ -35,6 +41,8 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "Adapter les doses ou l'intervalle si DFG < 30 mL/min.",
     geriatricRisk: "Modéré (risque accru de diarrhée à C. difficile et d'ictère)",
+    aware: "access",
+    stoppBeers: null,
     manuals: ["general", "geriatrie"]
   },
   {
@@ -46,6 +54,8 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "Réduire à 2,5 mg x 2/j si créatinine ≥ 133 µmol/L (associée à l'âge ≥80 ou poids ≤60kg) ou DFG 15-29 mL/min.",
     geriatricRisk: "Élevé (surveiller observance, chutes avec TC, interactions)",
+    aware: null,
+    stoppBeers: null,
     manuals: ["general", "geriatrie"]
   },
   {
@@ -57,6 +67,8 @@ const DRUGS_DATA = [
     renalAdaptation: false,
     renalNote: "Pas d'adaptation rénale nécessaire.",
     geriatricRisk: "Modéré (attention à la faiblesse musculaire et au risque de chute chez le grand vieillard)",
+    aware: null,
+    stoppBeers: "STOPP B13 : Statine en prévention primaire chez le sujet très âgé (> 85 ans) ou en fin de vie sans bénéfice démontré.",
     manuals: ["general", "geriatrie"]
   },
   {
@@ -68,7 +80,9 @@ const DRUGS_DATA = [
     renalAdaptation: false,
     renalNote: "Prudence si DFG très bas (< 10 mL/min).",
     geriatricRisk: "Modéré (risque cardiaque sur QT long préexistant ou hypokaliémie)",
-    manuals: ["general"]
+    aware: "watch",
+    stoppBeers: "Beers : Macrolide à risque d'allongement de l'intervalle QT et d'interactions avec médicaments arythmogènes.",
+    manuals: ["general", "geriatrie"]
   },
   {
     dci: "Bisoprolol",
@@ -79,6 +93,8 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "Adapter la dose maximale si DFG < 20 mL/min (max 10 mg/j).",
     geriatricRisk: "Modéré (rechercher bradycardie < 50 bpm et hypotension orthostatique)",
+    aware: null,
+    stoppBeers: null,
     manuals: ["general", "geriatrie"]
   },
   {
@@ -90,7 +106,9 @@ const DRUGS_DATA = [
     renalAdaptation: false,
     renalNote: "Pas d'adaptation rénale.",
     geriatricRisk: "Faible (vérifier la bonne technique d'inhalation et la préhension)",
-    manuals: ["general"]
+    aware: null,
+    stoppBeers: null,
+    manuals: ["general", "geriatrie"]
   },
   {
     dci: "Cétirizine",
@@ -101,7 +119,9 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "Réduire de 50% la dose si DFG < 50 mL/min.",
     geriatricRisk: "Faible (préféré aux antihistaminiques H1 sédatifs anticholinergiques de 1ère génération)",
-    manuals: ["general"]
+    aware: null,
+    stoppBeers: null,
+    manuals: ["general", "geriatrie"]
   },
   {
     dci: "Ceftriaxone",
@@ -112,6 +132,8 @@ const DRUGS_DATA = [
     renalAdaptation: false,
     renalNote: "Pas d'adaptation si DFG > 10 mL/min (élimination biliaire conjointe).",
     geriatricRisk: "Faible à modéré (molécule injectable de référence)",
+    aware: "watch",
+    stoppBeers: null,
     manuals: ["general", "geriatrie"]
   },
   {
@@ -123,6 +145,8 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "Réduire la dose de moitié si DFG < 30 mL/min.",
     geriatricRisk: "Élevé (critères de Beers : confusion mentale, délires, ruptures tendineuses)",
+    aware: "watch",
+    stoppBeers: "Beers : Fluoroquinolones à éviter chez le sujet âgé (tendinopathies, confusion, rupture aortique, allongement QT).",
     manuals: ["general", "geriatrie"]
   },
   {
@@ -134,7 +158,9 @@ const DRUGS_DATA = [
     renalAdaptation: false,
     renalNote: "Absorption systémique négligeable.",
     geriatricRisk: "Faible",
-    manuals: ["general"]
+    aware: null,
+    stoppBeers: null,
+    manuals: ["general", "geriatrie"]
   },
   {
     dci: "Colchicine",
@@ -145,6 +171,8 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "Contre-indiquée si DFG < 30 mL/min. Réduire drastiquement les doses si DFG 30-50 mL/min.",
     geriatricRisk: "Très élevé (risque d'accumulation foudroyante)",
+    aware: null,
+    stoppBeers: "STOPP E4 / Beers : Posologie standard toxique si DFG < 30 mL/min ; proscrire impérativement l'association aux macrolides.",
     manuals: ["general", "geriatrie"]
   },
   {
@@ -156,6 +184,8 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "Non recommandée pour le contrôle glycémique si DFG < 25 mL/min, mais poursuivie pour la néphroprotection selon RCP.",
     geriatricRisk: "Modéré (attention à la déshydratation lors des épisodes de canicule ou de gastro-entérite)",
+    aware: null,
+    stoppBeers: null,
     manuals: ["general", "geriatrie"]
   },
   {
@@ -167,7 +197,9 @@ const DRUGS_DATA = [
     renalAdaptation: false,
     renalNote: "Utilisable en cas d'insuffisance rénale mais risque majoré d'hypocalcémie sévère (surveillance stricte).",
     geriatricRisk: "Modéré (règle stricte de non-interruption intempestive)",
-    manuals: ["geriatrie"]
+    aware: null,
+    stoppBeers: null,
+    manuals: ["geriatrie", "general"]
   },
   {
     dci: "Diazépam",
@@ -178,6 +210,8 @@ const DRUGS_DATA = [
     renalAdaptation: false,
     renalNote: "Élimination hépatique principale.",
     geriatricRisk: "Très élevé (Beers : à proscrire en usage régulier, accumulation majeure de métabolites actifs)",
+    aware: null,
+    stoppBeers: "STOPP D5 / Beers : Benzodiazépine à demi-vie longue à proscrire chez le sujet âgé (sédation diurne, risque de chutes, fractures et confusion).",
     manuals: ["general", "geriatrie"]
   },
   {
@@ -189,6 +223,8 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "Élimination rénale prédominante : adaptation stricte de posologie et dosage de la digoxinémie.",
     geriatricRisk: "Très élevé (médicament à haut risque gériatrique)",
+    aware: null,
+    stoppBeers: "STOPP B2 / Beers : Posologie > 0,125 mg/j à proscrire chez le sujet âgé (marge étroite, toxicité cardiaque et digestive).",
     manuals: ["general", "geriatrie"]
   },
   {
@@ -200,6 +236,8 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "Adapter selon DFG conformément aux recommandations.",
     geriatricRisk: "Modéré",
+    aware: null,
+    stoppBeers: null,
     manuals: ["general", "geriatrie"]
   },
   {
@@ -211,7 +249,9 @@ const DRUGS_DATA = [
     renalAdaptation: false,
     renalNote: "Pas d'adaptation si DFG > 20 mL/min.",
     geriatricRisk: "Modéré (préféré aux tricycliques, surveiller ionogramme sanguin)",
-    manuals: ["geriatrie"]
+    aware: null,
+    stoppBeers: "Beers : Risque de syndrome inapproprié de sécrétion d'ADH (SIADH) avec hyponatrémie et risque de chutes.",
+    manuals: ["general", "geriatrie"]
   },
   {
     dci: "Fosfomycine trométamol",
@@ -222,6 +262,8 @@ const DRUGS_DATA = [
     renalAdaptation: false,
     renalNote: "Ne nécessite pas d'adaptation pour la dose unique si DFG > 10 mL/min.",
     geriatricRisk: "Faible (très bien toléré)",
+    aware: "access",
+    stoppBeers: null,
     manuals: ["general", "geriatrie"]
   },
   {
@@ -233,6 +275,8 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "Augmenter les doses en cas d'insuffisance rénale sévère pour obtenir un effet natriurétique.",
     geriatricRisk: "Élevé (surveiller le poids, les électrolytes et la pression debout)",
+    aware: null,
+    stoppBeers: "STOPP B1 / Beers : Diurétique de l'anse comme traitement de 1ère intention de l'HTA non compliquée (risque d'hypotension, chutes et déshydratation).",
     manuals: ["general", "geriatrie"]
   },
   {
@@ -244,6 +288,8 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "Contre-indiqué en cas d'insuffisance rénale sévère (DFG < 30 mL/min).",
     geriatricRisk: "Élevé (surveillance rigoureuse des repas et signes d'hypoglycémie)",
+    aware: null,
+    stoppBeers: "STOPP G1 / Beers : Sulfamide à manipuler avec prudence extrême chez le sujet âgé (préféré au glibenclamide mais risque d'hypoglycémie persistant).",
     manuals: ["general", "geriatrie"]
   },
   {
@@ -255,7 +301,9 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "Inefficace comme antihypertenseur lorsque le DFG < 30 mL/min (remplacer par diurétique de l'anse).",
     geriatricRisk: "Modéré (risque hyponatrémique important)",
-    manuals: ["general"]
+    aware: null,
+    stoppBeers: "STOPP B10 : Diurétique thiazidique en cas d'antécédent de goutte ou d'hyponatrémie sévère (< 130 mmol/L).",
+    manuals: ["general", "geriatrie"]
   },
   {
     dci: "Ibuprofène",
@@ -266,6 +314,8 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "Contre-indiqué si insuffisance rénale préexistante ou déshydratation.",
     geriatricRisk: "Très élevé (critères STOPP / Beers : cause majeure d'hospitalisation évitable)",
+    aware: null,
+    stoppBeers: "STOPP A1 / Beers : AINS à proscrire au long cours chez le sujet âgé (ulcère gastroduodénal, défaillance rénale, HTA décompensée, insuffisance cardiaque).",
     manuals: ["general", "geriatrie"]
   },
   {
@@ -277,7 +327,9 @@ const DRUGS_DATA = [
     renalAdaptation: false,
     renalNote: "Effet local inhalé prépondérant.",
     geriatricRisk: "Faible à modéré (protéger les yeux lors de la nébulisation)",
-    manuals: ["general"]
+    aware: null,
+    stoppBeers: "Beers : Anticholinergique inhalé : prudence si hypertrophie prostatique avec résidu post-mictionnel ou glaucome à angle fermé.",
+    manuals: ["general", "geriatrie"]
   },
   {
     dci: "Lactulose",
@@ -288,6 +340,8 @@ const DRUGS_DATA = [
     renalAdaptation: false,
     renalNote: "Pas d'absorption systémique significative.",
     geriatricRisk: "Faible",
+    aware: null,
+    stoppBeers: null,
     manuals: ["general", "geriatrie"]
   },
   {
@@ -299,6 +353,8 @@ const DRUGS_DATA = [
     renalAdaptation: false,
     renalNote: "Pas d'adaptation requise.",
     geriatricRisk: "Modéré (risque coronarien si titration trop rapide)",
+    aware: null,
+    stoppBeers: null,
     manuals: ["general", "geriatrie"]
   },
   {
@@ -310,7 +366,9 @@ const DRUGS_DATA = [
     renalAdaptation: false,
     renalNote: "Pas d'adaptation posologique.",
     geriatricRisk: "Faible (sécurisant)",
-    manuals: ["general"]
+    aware: null,
+    stoppBeers: null,
+    manuals: ["general", "geriatrie"]
   },
   {
     dci: "Losartan",
@@ -321,7 +379,9 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "Surveillance de la créatinine et de la kaliémie à J7-J15 post-introduction.",
     geriatricRisk: "Modéré",
-    manuals: ["general"]
+    aware: null,
+    stoppBeers: "STOPP B11 : Association IEC + ARA2 formellement à proscrire (hyperkaliémie sévère et insuffisance rénale aiguë).",
+    manuals: ["general", "geriatrie"]
   },
   {
     dci: "Macrogol",
@@ -332,6 +392,8 @@ const DRUGS_DATA = [
     renalAdaptation: false,
     renalNote: "Non absorbé par le tractus digestif.",
     geriatricRisk: "Très faible (laxatif de 1er choix en gériatrie)",
+    aware: null,
+    stoppBeers: null,
     manuals: ["general", "geriatrie"]
   },
   {
@@ -343,6 +405,8 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "Dose max 1 000 mg/j si DFG 30-59 mL/min. Arrêt strict si DFG < 30 mL/min.",
     geriatricRisk: "Élevé (à suspendre lors de toute infection aiguë ou gastro-entérite)",
+    aware: null,
+    stoppBeers: "STOPP G2 / Beers : Metformine si DFG < 30 mL/min (risque mortel d'acidose lactique).",
     manuals: ["general", "geriatrie"]
   },
   {
@@ -354,7 +418,9 @@ const DRUGS_DATA = [
     renalAdaptation: false,
     renalNote: "Prudence en cas d'insuffisance rénale terminale.",
     geriatricRisk: "Modéré",
-    manuals: ["general"]
+    aware: "access",
+    stoppBeers: null,
+    manuals: ["general", "geriatrie"]
   },
   {
     dci: "Mirtazapine",
@@ -365,7 +431,9 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "Clairance diminuée si DFG < 30 mL/min (titration prudente).",
     geriatricRisk: "Faible à modéré (très utile dans le profil dépression + cachexie + insomnie)",
-    manuals: ["geriatrie"]
+    aware: null,
+    stoppBeers: null,
+    manuals: ["general", "geriatrie"]
   },
   {
     dci: "Nitrofurantoïne",
@@ -376,7 +444,9 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "Contre-indiquée si DFG < 30-45 mL/min (inefficacité urinaire et toxicité systémique).",
     geriatricRisk: "Modéré à élevé chez l'insuffisant rénal",
-    manuals: ["general"]
+    aware: "access",
+    stoppBeers: "STOPP C2 / Beers : Nitrofurantoïne au long cours ou si DFG < 30 mL/min (inefficacité et risque de toxicité pulmonaire/neurologique).",
+    manuals: ["general", "geriatrie"]
   },
   {
     dci: "Oméprazole",
@@ -387,6 +457,8 @@ const DRUGS_DATA = [
     renalAdaptation: false,
     renalNote: "Pas d'adaptation posologique requise.",
     geriatricRisk: "Modéré (éviter les prescriptions perpétuelles injustifiées)",
+    aware: null,
+    stoppBeers: "STOPP F1 / Beers : IPP pleine dose > 8 semaines sans indication documentée (risque d'infection à C. difficile, malabsorption B12/Mg, fractures).",
     manuals: ["general", "geriatrie"]
   },
   {
@@ -398,6 +470,8 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "Espacer les prises à 8 heures d'intervalle si DFG < 30 mL/min.",
     geriatricRisk: "Faible (antalgique de référence sous réserve de respecter la dose max réduite)",
+    aware: null,
+    stoppBeers: null,
     manuals: ["general", "geriatrie"]
   },
   {
@@ -409,7 +483,9 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "Adapter la posologie au DFG. Contrôle créatinine et kaliémie à J7-J14.",
     geriatricRisk: "Modéré (dépister hypotension orthostatique)",
-    manuals: ["general"]
+    aware: null,
+    stoppBeers: "STOPP B11 : Ne jamais associer à un ARA2 ou un inhibiteur direct de la rénine.",
+    manuals: ["general", "geriatrie"]
   },
   {
     dci: "Perméthrine 5%",
@@ -420,7 +496,9 @@ const DRUGS_DATA = [
     renalAdaptation: false,
     renalNote: "Usage topique exclusif.",
     geriatricRisk: "Faible (molécule de 1er choix)",
-    manuals: ["general"]
+    aware: null,
+    stoppBeers: null,
+    manuals: ["general", "geriatrie"]
   },
   {
     dci: "Prednisone",
@@ -431,6 +509,8 @@ const DRUGS_DATA = [
     renalAdaptation: false,
     renalNote: "Pas d'adaptation posologique spécifique.",
     geriatricRisk: "Élevé (surveillance stricte de la glycémie et de l'état psychique)",
+    aware: null,
+    stoppBeers: "STOPP A2 / Beers : Corticothérapie orale prolongée en monothérapie pour arthrose ; surveillance accrue ostéoporose et diabète.",
     manuals: ["general", "geriatrie"]
   },
   {
@@ -442,6 +522,8 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "Débuter à la dose minimale si DFG 30-59 mL/min. Expérience limitée si DFG < 30 mL/min.",
     geriatricRisk: "Élevé (titration progressive et surveillance tensionnelle étroite)",
+    aware: null,
+    stoppBeers: null,
     manuals: ["general", "geriatrie"]
   },
   {
@@ -453,7 +535,9 @@ const DRUGS_DATA = [
     renalAdaptation: false,
     renalNote: "Pas d'adaptation.",
     geriatricRisk: "Faible (vérifier la bonne délivrance via chambre d'inhalation)",
-    manuals: ["general"]
+    aware: null,
+    stoppBeers: null,
+    manuals: ["general", "geriatrie"]
   },
   {
     dci: "Sitagliptine",
@@ -464,6 +548,8 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "50 mg/j si DFG 30-49 mL/min ; 25 mg/j si DFG < 30 mL/min.",
     geriatricRisk: "Faible à modéré (molécule très bien tolérée chez le sujet âgé après adaptation au DFG)",
+    aware: null,
+    stoppBeers: null,
     manuals: ["general", "geriatrie"]
   },
   {
@@ -475,6 +561,8 @@ const DRUGS_DATA = [
     renalAdaptation: true,
     renalNote: "Contre-indiquée si DFG < 30 mL/min ou kaliémie initiale > 5,0 mmol/L.",
     geriatricRisk: "Élevé (surveillance biologique bimensuelle au début)",
+    aware: null,
+    stoppBeers: "STOPP B8 / Beers : Risque d'hyperkaliémie sévère si dose > 25 mg/j ou si prescrite sans contrôle régulier de kaliémie/créatinine.",
     manuals: ["general", "geriatrie"]
   },
   {
@@ -486,10 +574,455 @@ const DRUGS_DATA = [
     renalAdaptation: false,
     renalNote: "Élimination hépatique.",
     geriatricRisk: "Élevé (fortement déconseillé chez les plus de 65 ans en raison du risque cardiovasculaire)",
+    aware: null,
+    stoppBeers: "Beers : Déconseillé chez la personne âgée en raison des risques de vasospasme coronarien et d'ischémie cérébrale.",
     manuals: ["general"]
+  },
+
+  // --- 34 NOUVELLES MOLECULES DE PREMIERE LIGNE ---
+  {
+    dci: "Acide acétylsalicylique (Aspirine)",
+    class: "Antiagrégant plaquettaire / Salicylé",
+    indication: "Prévention secondaire post-SCA, post-AVC ischémique/AIT, artériopathie périphérique",
+    dosage: "75 à 100 mg une fois par jour au cours d'un repas. Dose de charge SCA : 150 à 300 mg per os ou IV.",
+    precautions: "Ulcère gastroduodénal, saignement digestif, hémorragie cérébrale. Proscrire en prévention primaire en l'absence d'indication formelle.",
+    renalAdaptation: true,
+    renalNote: "Prudence en cas de DFG < 30 mL/min (majoration du risque hémorragique et rétention hydrosodée).",
+    geriatricRisk: "Élevé (risque hémorragique digestif accru, association IPP protecteur recommandée si facteurs de risque)",
+    aware: null,
+    stoppBeers: "STOPP A3 / Beers : Aspirine en prévention cardiovasculaire primaire chez le sujet âgé (balance bénéfice/risque défavorable, sur-risque d'hémorragie majeure).",
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Clopidogrel",
+    class: "Antiagrégant plaquettaire / Inhibiteur du récepteur P2Y12",
+    indication: "Prévention secondaire post-SCA (bithérapie avec aspirine), post-AVC ischémique ou intolérance à l'aspirine",
+    dosage: "75 mg une fois par jour le matin. Dose de charge SCA : 300 à 600 mg selon stratégie.",
+    precautions: "Risque hémorragique, purpura thrombopénique thrombotique exceptionnel. Interactions avec oméprazole réduisant son activation (préférer pantoprazole si IPP requis).",
+    renalAdaptation: false,
+    renalNote: "Pas d'adaptation requise, surveillance du risque hémorragique.",
+    geriatricRisk: "Élevé (surveillance des hématomes, chutes et saignements occultes)",
+    aware: null,
+    stoppBeers: "STOPP A4 : Bithérapie antiagrégante (aspirine + clopidogrel) prolongée au-delà de 12 mois post-SCA sans indication validée.",
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Rivaroxaban",
+    class: "Anticoagulant oral direct (AOD) / Inhibiteur direct du facteur Xa",
+    indication: "Prévention des AVC dans la FANV, traitement et prévention des récidives de TVP et d'embolie pulmonaire",
+    dosage: "20 mg une fois par jour au cours d'un repas (15 mg/j si DFG 15-49 mL/min). TVP/EP : 15 mg 2 fois/j pendant 3 semaines puis 20 mg/j.",
+    precautions: "Prendre impérativement au cours d'un repas pour assurer l'absorption. Risque hémorragique. Pas d'AOD si valve mécanique ou rétrécissement mitral modéré à serré.",
+    renalAdaptation: true,
+    renalNote: "Réduire à 15 mg/jour si DFG entre 15 et 49 mL/min. Contre-indiqué si DFG < 15 mL/min.",
+    geriatricRisk: "Élevé (surveiller fonction rénale au moins 2 fois par an chez le sujet âgé)",
+    aware: null,
+    stoppBeers: null,
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Dabigatran",
+    class: "Anticoagulant oral direct (AOD) / Inhibiteur direct de la thrombine (Anti-IIa)",
+    indication: "Prévention des AVC dans la FANV, traitement et prévention de la TVP/EP",
+    dosage: "150 mg 2 fois par jour (110 mg 2 fois/j chez > 80 ans ou risque hémorragique élevé)",
+    precautions: "Dyspepsie fréquente (avaler entier avec un grand verre d'eau, ne pas ouvrir la gélule). Antidote spécifique disponible (idarucizumab).",
+    renalAdaptation: true,
+    renalNote: "Élimination rénale à 80%. Réduire à 110 mg x 2/j si DFG 30-50 mL/min. Formellement contre-indiqué si DFG < 30 mL/min.",
+    geriatricRisk: "Élevé (accumulation foudroyante en cas de défaillance rénale aiguë)",
+    aware: null,
+    stoppBeers: "STOPP B3 / Beers : Dabigatran 150 mg x 2/j chez le patient de plus de 80 ans ou si DFG < 50 mL/min (risque hémorragique digestif supérieur aux autres AOD).",
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Énoxaparine",
+    class: "Héparine de bas poids moléculaire (HBPM) / Antithrombotique",
+    indication: "Prévention et traitement curatif de la maladie thromboembolique veineuse, phase aiguë du SCA",
+    dosage: "Prophylaxie : 2 000 à 4 000 UI (20 à 40 mg) SC/j. Curatif : 100 UI/kg (1 mg/kg) SC toutes les 12h.",
+    precautions: "Thrombopénie induite par l'héparine (TIH : surveillance des plaquettes 2 fois par semaine au début), hématomes au point d'injection, hémorragies.",
+    renalAdaptation: true,
+    renalNote: "Risque majeur d'accumulation si DFG < 30 mL/min : réduire la dose de 50% ou préférer une héparine non fractionnée (HNF) avec suivi anti-Xa.",
+    geriatricRisk: "Élevé (médicament à haut risque injectable : surveiller plaquettes et fonction rénale)",
+    aware: null,
+    stoppBeers: "Beers : Prudence extrême chez l'insuffisant rénal sévère (DFG < 30 mL/min) en raison de l'accumulation et du sur-risque hémorragique.",
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Morphine",
+    class: "Antalgique opioïde fort (Palier 3 OMS)",
+    indication: "Douleurs intenses aiguës ou chroniques résistantes aux autres antalgiques (cancéreuses, post-opératoires, accès aigus)",
+    dosage: "Libération immédiate per os : début à 5-10 mg toutes les 4h chez l'adulte (2,5 à 5 mg chez le sujet âgé), titration progressive.",
+    precautions: "Dépression respiratoire, constipation opiniâtre constante, somnolence, confusion, nausées. Avoir de la naloxone disponible.",
+    renalAdaptation: true,
+    renalNote: "Accumulation toxique des métabolites actifs (M6G et M3G) si DFG < 30 mL/min : espacer les prises et réduire les doses (ou préférer l'oxycodone/fentanyl).",
+    geriatricRisk: "Très élevé (coprescription systématique obligatoire d'un laxatif osmotique type macrogol ; surveillance cognitive et respiratoire)",
+    aware: null,
+    stoppBeers: "STOPP E3 / Beers : Opioïde fort sans prescription simultanée de laxatif préventif (risque majeur d'impaction fécale et d'occlusion).",
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Oxycodone",
+    class: "Antalgique opioïde fort (Palier 3 OMS)",
+    indication: "Douleurs sévères d'origine cancéreuse ou non cancéreuse lorsque les opioïdes faibles sont insuffisants",
+    dosage: "Forme immédiate : début à 5 mg toutes les 4 à 6h (2,5 mg chez le sujet âgé fragile). Forme LP : 10 mg 2 fois/j en relais.",
+    precautions: "Constipation constante, sédation, dépression respiratoire, dépendance. Coprescription de laxatif impérative.",
+    renalAdaptation: true,
+    renalNote: "Métabolites moins toxiques que la morphine mais clairance réduite si DFG < 30 mL/min : débuter à dose réduite de moitié.",
+    geriatricRisk: "Très élevé (surveiller sédation, confusion, chutes et transit intestinal)",
+    aware: null,
+    stoppBeers: "STOPP E3 / Beers : Opioïde puissant sans laxatif associé ; éviter l'association aux benzodiazépines ou gabapentinoïdes (risque de surdose mortelle).",
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Tramadol",
+    class: "Antalgique opioïde faible et inhibiteur de recapture monoaminergique (Palier 2 OMS)",
+    indication: "Douleurs modérées à intenses aiguës ou chroniques",
+    dosage: "50 mg par prise, 2 à 3 fois par jour (max 300 à 400 mg/j chez l'adulte, max 200 mg/j chez le sujet âgé)",
+    precautions: "Nausées/vertiges fréquents, confusion mentale, convulsions à forte dose, syndrome sérotoninergique en association aux ISRS/IRSNA. Risque de dépendance.",
+    renalAdaptation: true,
+    renalNote: "Espacer les prises à 12 heures d'intervalle si DFG 10-30 mL/min. Contre-indiqué si DFG < 10 mL/min.",
+    geriatricRisk: "Très élevé (cause fréquente de confusion aiguë, de chutes et d'hyponatrémie par SIADH chez la personne âgée)",
+    aware: null,
+    stoppBeers: "STOPP E5 / Beers : Opioïde à risque élevé de confusion aiguë, de syndrome sérotoninergique, d'hyponatrémie et de chutes chez le sujet âgé.",
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Prégabaline",
+    class: "Gabapentinoïde / Antiepileptique / Antalgique pour douleurs neuropathiques",
+    indication: "Douleurs neuropathiques périphériques et centrales, anxiété généralisée, épilepsie partielle",
+    dosage: "Début à 25-50 mg le soir au coucher, augmentation par paliers hebdomadaires jusqu'à 150-300 mg/j en 2 prises",
+    precautions: "Somnolence majeure, vertiges, ataxie, prise de poids et œdèmes périphériques. Risque d'abus et de dépendance. Ne jamais interrompre brutalement.",
+    renalAdaptation: true,
+    renalNote: "Élimination rénale quasi-exclusive sous forme inchangée : adaptation obligatoire et stricte de la posologie selon le DFG (réduire de 50% si DFG 30-60 mL/min).",
+    geriatricRisk: "Élevé (somnolence diurne, ataxie et risque très élevé de chutes ; réduire drastiquement les posologies initiales)",
+    aware: null,
+    stoppBeers: "Beers : Gabapentinoïde à risque majoré de sédation, d'ataxie et de chutes ; à éviter en association aux opioïdes (dépression respiratoire sévère).",
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Duloxétine",
+    class: "Antidépresseur inhibiteur de la recapture de la sérotonine et de la noradrénaline (IRSNA)",
+    indication: "Épisode dépressif caractérisé, douleurs neuropathiques diabétiques périphériques, anxiété généralisée",
+    dosage: "30 à 60 mg une fois par jour le matin (débuter à 30 mg/j chez le sujet âgé)",
+    precautions: "Poussée tensionnelle, nausées, sécheresse buccale, hyponatrémie (SIADH), risque d'hépatotoxicité. Ne pas associer aux IMAO.",
+    renalAdaptation: true,
+    renalNote: "Non recommandée en cas d'insuffisance rénale terminale (DFG < 30 mL/min).",
+    geriatricRisk: "Modéré à élevé (surveillance de la pression artérielle et de la natrémie)",
+    aware: null,
+    stoppBeers: "Beers : Risque de syndrome de sécrétion inappropriée d'hormone antidiurétique (SIADH) avec hyponatrémie sévère et chutes.",
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Sertraline",
+    class: "Antidépresseur inhibiteur sélectif de la recapture de la sérotonine (ISRS)",
+    indication: "Épisodes dépressifs caractérisés, troubles obsessionnels compulsifs, attaques de panique",
+    dosage: "Débuter à 25-50 mg/jour le matin, augmentation progressive jusqu'à 100-200 mg/j si nécessaire (titration lente chez le sujet âgé)",
+    precautions: "Troubles digestifs en début de prise, allongement modéré du QT, hyponatrémie par SIADH, saignements digestifs (potentialise les AINS/antiagrégants).",
+    renalAdaptation: false,
+    renalNote: "Pas d'adaptation nécessaire en cas d'insuffisance rénale légère à modérée (métabolisme hépatique prédominant).",
+    geriatricRisk: "Modéré (ISRS de référence en gériatrie avec l'escitalopram ; contrôler la natrémie à J15)",
+    aware: null,
+    stoppBeers: "Beers : Surveillance du sodium sérique requise chez la personne âgée (risque d'hyponatrémie / SIADH).",
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Donépézil",
+    class: "Inhibiteur réversible et spécifique de l'acétylcholinestérase (Anticholinestérasique)",
+    indication: "Traitement symptomatique de la maladie d'Alzheimer dans ses formes légères à modérément sévères",
+    dosage: "5 mg une fois par jour le soir au coucher pendant au moins 4 à 6 semaines, puis augmentation possible à 10 mg/j",
+    precautions: "Bradycardie sinusale, blocs de conduction sino-auriculaires ou auriculo-ventriculaires, syncopes, nausées, diarrhée, crampes musculaires, perte de poids.",
+    renalAdaptation: false,
+    renalNote: "Pas d'adaptation posologique requise selon la fonction rénale.",
+    geriatricRisk: "Élevé (risque de bradycardie sévère, syncope inaugurale conduisant à une fracture ; réaliser un ECG préalable)",
+    aware: null,
+    stoppBeers: "STOPP D9 / Beers : Anticholinestérasique chez un patient avec bradycardie préexistante (< 60 bpm) ou bloc cardiaque inexpliqué (risque de syncope et chute).",
+    manuals: ["geriatrie", "general"]
+  },
+  {
+    dci: "Rivastigmine",
+    class: "Inhibiteur de l'acétylcholinestérase et de la butyrylcholinestérase (Anticholinestérasique)",
+    indication: "Maladie d'Alzheimer formes légères à modérées, démence associée à la maladie de Parkinson",
+    dosage: "Dispositif transdermique (patch) : début à 4,6 mg/24h pendant 4 semaines, puis 9,5 mg/24h. Remplacement quotidien sur peau saine.",
+    precautions: "Réactions cutanées d'irritation (alterner les sites d'application), perte d'appétit, nausées, bradycardie, aggravation de tremblements.",
+    renalAdaptation: false,
+    renalNote: "Pas d'adaptation posologique nécessaire, titration progressive.",
+    geriatricRisk: "Élevé (voie transdermique mieux tolérée sur le plan digestif mais vigilance sur le poids et le rythme cardiaque)",
+    aware: null,
+    stoppBeers: "STOPP D9 / Beers : Risque d'effets vagotoniques marqués (bradycardie, syncope, bloc de conduction) et perte de poids chez le vieillard fragile.",
+    manuals: ["geriatrie", "general"]
+  },
+  {
+    dci: "Mémantine",
+    class: "Antagoniste non compétitif des récepteurs NMDA au glutamate",
+    indication: "Traitement symptomatique de la maladie d'Alzheimer dans les formes modérées à sévères",
+    dosage: "Titration hebdomadaire : Semaine 1 : 5 mg/j ; Semaine 2 : 10 mg/j ; Semaine 3 : 15 mg/j ; Entretien : 20 mg/jour en une prise.",
+    precautions: "Sensations vertigineuses, céphalées, somnolence, poussée hypertensive, hallucinations chez les patients très vulnérables.",
+    renalAdaptation: true,
+    renalNote: "Clairance rénale prédominante : réduire à 10 mg/j si DFG 30-49 mL/min. Posologie maximale de 5 mg/j si DFG 15-29 mL/min.",
+    geriatricRisk: "Modéré (bonne tolérance globale sous réserve d'adaptation rigoureuse au DFG)",
+    aware: null,
+    stoppBeers: null,
+    manuals: ["geriatrie", "general"]
+  },
+  {
+    dci: "Insuline (glargine / basale)",
+    class: "Hormone hypoglycémiante / Analogue d'insuline basale à longue durée d'action",
+    indication: "Diabète de type 1, diabète de type 2 insulino-nécessitant ou en échec des antidiabétiques oraux",
+    dosage: "Schéma basal : début habituel à 0,1 - 0,2 UI/kg/jour en une injection sous-cutanée quotidienne à heure fixe, titration selon glycémies à jeun.",
+    precautions: "Hypoglycémie aiguë potentiellement fatale, lipodystrophies au site d'injection (rotation indispensable). Éducation du patient et de l'entourage.",
+    renalAdaptation: true,
+    renalNote: "Diminution de la clairance rénale de l'insuline en cas d'insuffisance rénale : réduire les doses pour prévenir les hypoglycémies sévères.",
+    geriatricRisk: "Très élevé (objectifs glycémiques assouplis en gériatrie : HbA1c 7,5 - 8,5% chez le sujet fragile pour éviter tout coma hypoglycémique)",
+    aware: null,
+    stoppBeers: "STOPP G3 / Beers : Schémas d'insuline complexes ou cibles glycémiques trop strictes chez le sujet âgé grabataire (risque majeur d'hypoglycémie létale).",
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Glibenclamide",
+    class: "Sulfamide hypoglycémiant de 2e génération à longue demi-vie",
+    indication: "Diabète de type 2 de l'adulte (historique, aujourd'hui supplanté par le gliclazide)",
+    dosage: "2,5 à 5 mg par jour le matin au petit-déjeuner (max 15 mg/j)",
+    precautions: "Comas hypoglycémiques prolongés et réfractaires au resucrage simple. Strictement contre-indiqué chez le sujet âgé.",
+    renalAdaptation: true,
+    renalNote: "Élimination rénale de métabolites actifs : formellement contre-indiqué si DFG < 60 mL/min.",
+    geriatricRisk: "Très élevé (molécule phare des listes d'interdiction gériatrique STOPP et Beers en raison des décès par hypoglycémie)",
+    aware: null,
+    stoppBeers: "STOPP G1 / Beers : Sulfamide à longue demi-vie formellement contre-indiqué chez le sujet âgé (hypoglycémies sévères, prolongées et récidivantes).",
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Allopurinol",
+    class: "Hypo-uricémiant / Inhibiteur de la xanthine oxydase",
+    indication: "Traitement de fond de la goutte chronique, prévention des lithiases uriques et de l'hyperuricémie chimio-induite",
+    dosage: "Débuter à faible dose : 100 mg/j (50 mg/j si DFG bas), augmenter par paliers de 100 mg toutes les 2-4 semaines jusqu'à uricémie cible < 360 µmol/L (max 300-800 mg/j).",
+    precautions: "Ne jamais débuter pendant un accès aigu sans couverture anti-inflammatoire (colchicine). Toxidermies graves rares mais redoutables (syndrome de DRESS, Stevens-Johnson).",
+    renalAdaptation: true,
+    renalNote: "Accumulation de l'oxypurinol (métabolite actif) : adapter la posologie initiale et maximale au DFG (100 mg/j si DFG 30-50, 50 mg/j si DFG < 30 mL/min).",
+    geriatricRisk: "Élevé (surveiller l'apparition de toute éruption cutanée imposant l'arrêt définitif immédiat)",
+    aware: null,
+    stoppBeers: "STOPP E4 : Posologie excessive d'allopurinol sans adaptation au DFG ; absence de couverture par colchicine lors de l'initiation.",
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Alendronate",
+    class: "Bisphosphonate amino-dérivé / Inhibiteur de la résorption ostéoclastique",
+    indication: "Ostéoporose post-ménopausique et masculine à haut risque fracturaire",
+    dosage: "70 mg une fois par semaine le matin à jeun au saut du lit",
+    precautions: "Prendre avec un grand verre d'eau plate, rester en position assise ou debout sans se recoucher pendant 30 minutes (risque d'ulcère œsophagien grave). Ostéonécrose de mâchoire.",
+    renalAdaptation: true,
+    renalNote: "Contre-indiqué si DFG < 35 mL/min.",
+    geriatricRisk: "Modéré (exclure troubles de la déglutition et grabatisation avant de prescrire la forme orale)",
+    aware: null,
+    stoppBeers: "STOPP E10 : Bisphosphonate oral chez un patient ayant des antécédents d'œsophagite, sténose œsophagienne ou incapable de rester debout 30 min.",
+    manuals: ["geriatrie", "general"]
+  },
+  {
+    dci: "Acide zolédronique",
+    class: "Bisphosphonate intraveineux puissant",
+    indication: "Ostéoporose sévère à haut risque de fracture (alternative en cas de non-observance ou d'intolérance aux formes orales), maladie de Paget",
+    dosage: "5 mg en perfusion intraveineuse unique une fois par an (durée de perfusion minimale de 15 à 30 minutes)",
+    precautions: "Hydratation préalable abondante. Syndrome pseudo-grippal aigu fréquent dans les 72h post-perfusion (prévenir par paracétamol). Bilan dentaire préalable.",
+    renalAdaptation: true,
+    renalNote: "Contre-indication absolue si DFG < 35 mL/min en raison du risque de nécrose tubulaire aiguë.",
+    geriatricRisk: "Modéré à élevé (excellente observance annuelle mais contrôle biologique strict de la créatininémie et calcémie avant chaque injection)",
+    aware: null,
+    stoppBeers: null,
+    manuals: ["geriatrie", "general"]
+  },
+  {
+    dci: "Carbonate de calcium",
+    class: "Supplémentation minérale calcique",
+    indication: "Correction des carences d'apport calcique, adjuvant des traitements anti-ostéoporotiques",
+    dosage: "500 à 1 000 mg de calcium élément par jour au cours des repas (en 1 à 2 prises)",
+    precautions: "Constipation fréquente, lithiases rénales calciques, hypercalcémie. Espacer de 2 heures des biphosphonates, des cyclines et du fer.",
+    renalAdaptation: true,
+    renalNote: "Éviter les surdosages en cas d'insuffisance rénale (risque de calcifications vasculaires).",
+    geriatricRisk: "Faible (privilégier d'abord les apports alimentaires quotidiens en produits laitiers et eaux riches en calcium)",
+    aware: null,
+    stoppBeers: null,
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Cholécalciférol (Vitamine D3)",
+    class: "Vitamine liposoluble antirachitique / Hormone régulatrice du métabolisme phosphocalcique",
+    indication: "Prévention et traitement de la carence en vitamine D, ostéoporose, prévention des chutes chez le sujet âgé carencé",
+    dosage: "Dose de charge : 50 000 à 100 000 UI en prise unique orale (répéter selon déficit). Entretien : 800 à 2 000 UI/jour ou 50 000 UI tous les 1 à 2 mois.",
+    precautions: "Hypercalcémie, hypercalciurie, lithiase rénale en cas de surdosage massif prolongé. Bien respecter les espacements de prises.",
+    renalAdaptation: false,
+    renalNote: "Utilisable sans restriction chez l'insuffisant rénal léger à modéré ; dans l'IRC sévère, privilégier les dérivés 1-alpha hydroxylés.",
+    geriatricRisk: "Très faible (molécule essentielle et hautement protectrice contre les chutes et fractures en gériatrie)",
+    aware: null,
+    stoppBeers: null,
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Doxycycline",
+    class: "Antibiotique de la famille des tétracyclines (Cycline de 2e génération)",
+    indication: "Pneumonies atypiques (Mycoplasma, Chlamydia), exacerbations de BPCO, zoonoses (rickettsioses, borréliose de Lyme), acné inflammatoire",
+    dosage: "100 à 200 mg par jour en une ou deux prises au milieu d'un repas avec un grand verre d'eau",
+    precautions: "Photosensibilisation sévère (protection solaire), ulcérations œsophagiennes (avaler debout sans se coucher dans l'heure qui suit). Contre-indiquée chez l'enfant < 8 ans et pendant la grossesse (coloration de l'émail dentaire).",
+    renalAdaptation: false,
+    renalNote: "Élimination principalement hépatique et fécale : pas d'adaptation posologique requise en cas d'insuffisance rénale.",
+    geriatricRisk: "Faible à modéré (surveiller la prise pour prévenir l'œsophagite médicamenteuse)",
+    aware: "access",
+    stoppBeers: null,
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Clarithromycine",
+    class: "Antibiotique macrolide semi-synthétique",
+    indication: "Infections respiratoires aiguës, éradication d'Helicobacter pylori (dans les protocoles quadri-thérapie ou guidés), mycobactéries",
+    dosage: "500 mg 2 fois par jour (matin et soir) au cours des repas",
+    precautions: "Inhibiteur puissant du cytochrome P450 CYP3A4 (multiples interactions médicamenteuses : statines, colchicine, anticoagulants oraux). Allongement de l'intervalle QT.",
+    renalAdaptation: true,
+    renalNote: "Réduire la posologie de moitié (500 mg une fois par jour) si DFG < 30 mL/min.",
+    geriatricRisk: "Élevé (risque majeur d'interactions toxiques et de torsade de pointes chez le polymédiqué)",
+    aware: "watch",
+    stoppBeers: "Beers : Macrolide à risque élevé d'allongement du QT et d'interactions médicamenteuses dangereuses (notamment avec statines et colchicine).",
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Pivmécillinam",
+    class: "Bêta-lactamine / Pénicilline du groupe M (Amidinopénicilline urinaire)",
+    indication: "Cystite aiguë simple et à risque de complication de la femme adulte à entérobactéries sensibles",
+    dosage: "400 mg 2 fois par jour (ou 200 mg 3 à 4 fois/j) pendant 3 à 5 jours au cours d'un repas",
+    precautions: "Prendre au milieu d'un repas avec un verre d'eau en position assise (risque d'ulcération œsophagienne). Allergie aux bêtalactamines. Carence en carnitine si cures très prolongées.",
+    renalAdaptation: false,
+    renalNote: "Concentrations urinaires très élevées : pas d'adaptation nécessaire si DFG > 15 mL/min pour les cystites.",
+    geriatricRisk: "Faible (molécule d'épargne des fluoroquinolones de choix chez la femme âgée)",
+    aware: "access",
+    stoppBeers: null,
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Tétracycline",
+    class: "Antibiotique de la famille des tétracyclines (Cycline de 1ère génération)",
+    indication: "Quadrithérapie bismuthée de seconde ligne pour l'éradication d'Helicobacter pylori, acné inflammatoire",
+    dosage: "500 mg 4 fois par jour au cours des repas et au coucher (sous forme combinée ou séparée)",
+    precautions: "Photosensibilisation, intolérance digestive, coloration permanente des dents chez l'enfant et le fœtus. Ne pas prendre avec des produits laitiers ou des pansements gastriques.",
+    renalAdaptation: true,
+    renalNote: "Contre-indiquée en cas d'insuffisance rénale modérée à sévère (risque d'accumulation toxique d'azote). Préférer la doxycycline si atteinte rénale.",
+    geriatricRisk: "Modéré (schéma lourd à 4 prises par jour nécessitant une bonne autonomie)",
+    aware: "access",
+    stoppBeers: null,
+    manuals: ["general"]
+  },
+  {
+    dci: "Itraconazole",
+    class: "Antifongique triazolé par voie systémique",
+    indication: "Mycoses unguéales sévères (onychomycoses des orteils), mycoses cutanées étendues rebelles, aspergillose",
+    dosage: "200 mg 2 fois par jour pendant 1 semaine par mois en traitement pulsé (ou 200 mg/jour continu)",
+    precautions: "Inhibiteur puissant du CYP3A4 : risque majeur d'accumulation des statines, anticoagulants, etc. Effet inotrope négatif (contre-indiqué si insuffisance cardiaque). Surveillance hépatique.",
+    renalAdaptation: false,
+    renalNote: "Pas d'adaptation nécessaire pour les formes orales (élimination hépatique).",
+    geriatricRisk: "Élevé (surveiller fonction cardiaque et interactions polymédicamenteuses)",
+    aware: null,
+    stoppBeers: "Beers : Azolé inotrope négatif à éviter chez le sujet âgé souffrant d'insuffisance cardiaque ou recevant des substrats sensibles du CYP3A4.",
+    manuals: ["general"]
+  },
+  {
+    dci: "Métoprolol",
+    class: "Bêtabloquant cardio-sélectif (bêta-1 sans ASI)",
+    indication: "Insuffisance cardiaque chronique stable à FEVG réduite (forme succinate), HTA, prévention secondaire post-infarctus",
+    dosage: "Forme LP (succinate) : débuter à 12,5 - 25 mg/j, doubler par paliers de 2 à 4 semaines jusqu'à dose cible de 200 mg/j.",
+    precautions: "Bradycardie excessive, hypotension orthostatique, asthme sévère, masquage des symptômes neurovégétatifs d'hypoglycémie. Arrêt toujours très progressif.",
+    renalAdaptation: false,
+    renalNote: "Métabolisme hépatique prédominant : pas d'adaptation requise selon la fonction rénale.",
+    geriatricRisk: "Modéré (titration lente et surveillance du pouls debout et couché)",
+    aware: null,
+    stoppBeers: null,
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Carvédilol",
+    class: "Bêtabloquant non cardiosélectif avec effet vasodilatateur alpha-1 bloquant",
+    indication: "Insuffisance cardiaque chronique stable à fraction d'éjection réduite, hypertension artérielle, post-infarctus",
+    dosage: "Début à 3,125 mg 2 fois par jour, doubler toutes les 2 semaines selon tolérance jusqu'à dose cible de 25 mg 2 fois/j (50 mg x 2/j si poids > 85 kg).",
+    precautions: "Hypotension artérielle fréquente au début en raison de l'effet vasodilatateur alpha-1, bradycardie, rétention hydrosodée transitoire, bronchospasme.",
+    renalAdaptation: false,
+    renalNote: "Pas d'adaptation nécessaire en cas d'insuffisance rénale (élimination hépatique biliaire).",
+    geriatricRisk: "Modéré à élevé (risque accru d'hypotension orthostatique lors des premières semaines ; prise recommandée au milieu du repas)",
+    aware: null,
+    stoppBeers: null,
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Propranolol",
+    class: "Bêtabloquant non cardiosélectif lipophile",
+    indication: "Contrôle adrénergique rapide dans l'hyperthyroïdie / crise thyréotoxique, prophylaxie de la migraine, tremblement essentiel, prévention des hémorragies de varices œsophagiennes",
+    dosage: "Hyperthyroïdie / anxiété : 10 à 40 mg 2 à 3 fois par jour. Prophylaxie migraine : 40 à 120 mg/jour.",
+    precautions: "Bronchospasme sévère (contre-indication formelle si asthme ou BPCO spastique), dépression, cauchemars et troubles du sommeil en raison de son passage cérébral lipophile élevé.",
+    renalAdaptation: false,
+    renalNote: "Métabolisme hépatique quasi-total : pas d'adaptation requise en cas d'insuffisance rénale.",
+    geriatricRisk: "Élevé (effets indésirables centraux accrus : cauchemars, confusion, dépression, aggravation de bronchopneumopathie)",
+    aware: null,
+    stoppBeers: "STOPP B5 / Beers : Bêtabloquant non cardiosélectif à éviter chez le sujet âgé souffrant de BPCO ou d'asthme ; effets indésirables neuropsychiatriques fréquents.",
+    manuals: ["general"]
+  },
+  {
+    dci: "Éplérénone",
+    class: "Antagoniste sélectif des récepteurs des minéralocorticoïdes (ARM)",
+    indication: "Insuffisance cardiaque chronique à fraction d'éjection réduite (en association au traitement standard), post-infarctus avec dysfonction VG",
+    dosage: "Début à 25 mg une fois par jour le matin, titration après 4 semaines vers 50 mg/j si kaliémie < 5,0 mmol/L",
+    precautions: "Hyperkaliémie menaçante (surveillance stricte du ionogramme sanguin à J7, J14, puis mensuel). Moins d'effets indésirables endocriniens (gynécomastie) que la spironolactone.",
+    renalAdaptation: true,
+    renalNote: "Contre-indiquée si DFG < 30 mL/min ou si kaliémie > 5,0 mmol/L à l'initiation. Réduire à 25 mg tous les 2 jours si DFG 30-49 mL/min.",
+    geriatricRisk: "Élevé (surveillance biologique bimensuelle impérative chez la personne âgée poly-médiquée)",
+    aware: null,
+    stoppBeers: "STOPP B8 / Beers : Risque d'hyperkaliémie mortelle si DFG < 30 mL/min ou si associé à une supplémentation potassique sans surveillance.",
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Amiodarone",
+    class: "Antiarythmique de classe III (bloqueur des canaux potassiques)",
+    indication: "Troubles du rythme ventriculaire graves, prévention et réduction des récidives de fibrillation atriale avec cardiopathie sous-jacente",
+    dosage: "Dose de charge : 600 mg/j pendant 8 à 10 jours. Entretien : 200 mg par jour (ou 5 jours sur 7).",
+    precautions: "Toxicité thyroïdienne majeure (dysthyroïdies hypo/hyper), pneumopathie interstitielle médicamenteuse fibreuse, micro-dépôts cornéens, allongement du QT, photosensibilisation.",
+    renalAdaptation: false,
+    renalNote: "Élimination biliaire et fécale : pas d'adaptation posologique en cas d'insuffisance rénale.",
+    geriatricRisk: "Très élevé (demi-vie extrêmement longue de 30 à 100 jours favorisant une accumulation tissulaire massive chez le sujet âgé dénutri)",
+    aware: null,
+    stoppBeers: "STOPP B4 / Beers : Antiarythmique à éviter en 1ère intention dans la FA du sujet âgé en raison de ses toxicités pulmonaires, hépatiques et thyroïdiennes sévères.",
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Pantoprazole",
+    class: "Inhibiteur de la pompe à protons (IPP)",
+    indication: "Reflux gastro-œsophagien sévère, œsophagite érosive, ulcère gastroduodénal, coprescription protectrice avec antiagrégants ou AINS",
+    dosage: "20 à 40 mg une fois par jour le matin à jeun pendant 4 à 8 semaines",
+    precautions: "Faible potentiel d'interactions avec le CYP2C19 par rapport à l'oméprazole (IPP de choix en cas d'association au clopidogrel). Limiter la durée aux indications indispensables.",
+    renalAdaptation: false,
+    renalNote: "Pas d'adaptation requise selon la fonction rénale.",
+    geriatricRisk: "Modéré (sur-risque infectieux à C. difficile et déminéralisation osseuse si utilisation continue au long cours)",
+    aware: null,
+    stoppBeers: "STOPP F1 / Beers : IPP pleine dose > 8 semaines sans indication documentée ; réévaluer régulièrement la pertinence du maintien.",
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Formotérol",
+    class: "Bronchodilatateur bêta-2 agoniste de longue durée d'action inhalé (LABA)",
+    indication: "Traitement continu de fond de l'asthme (toujours associé à un corticoïde inhalé) et de la BPCO modérée à sévère",
+    dosage: "12 µg par inhalation, 1 à 2 fois par jour selon dispositif (aérosol ou poudre sèche)",
+    precautions: "Ne jamais utiliser en monothérapie sans corticoïde inhalé dans l'asthme. Palpitations, tremblements légers des extrémités, hypokaliémie à forte dose.",
+    renalAdaptation: false,
+    renalNote: "Effet local topique inhalé, métabolisme hépatique : pas d'adaptation rénale requise.",
+    geriatricRisk: "Faible à modéré (vérifier le débit inspiratoire et la capacité motrice à déclencher l'inhalateur)",
+    aware: null,
+    stoppBeers: null,
+    manuals: ["general", "geriatrie"]
+  },
+  {
+    dci: "Fluticasone",
+    class: "Corticostéroïde inhalé de haute puissance (CSI)",
+    indication: "Traitement continu de fond de l'asthme persistant et de la BPCO sévère avec exacerbations répétées",
+    dosage: "100 à 500 µg 2 fois par jour selon le dispositif, le stade de sévérité et l'association fixe à un LABA",
+    precautions: "Candidose buccale et dysphonie (rincer obligatoirement la bouche à l'eau après chaque prise). Sur-risque de pneumonies documenté dans la BPCO du sujet âgé aux doses élevées.",
+    renalAdaptation: false,
+    renalNote: "Action locale pulmonaire, clairance hépatique des fractions dégluties : pas d'adaptation rénale.",
+    geriatricRisk: "Modéré (surveiller l'apparition de pneumopathies infectieuses chez le bronchitique chronique âgé)",
+    aware: null,
+    stoppBeers: null,
+    manuals: ["general", "geriatrie"]
   }
 ];
 
 if (typeof window !== 'undefined') window.DRUGS_DATA = DRUGS_DATA;
 if (typeof module !== 'undefined') module.exports = DRUGS_DATA;
-

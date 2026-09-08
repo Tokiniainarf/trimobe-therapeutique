@@ -685,21 +685,51 @@ Dysphagie (sensation d'accrochage alimentaire), odynophagie, anémie inexpliqué
     {
       num: 31,
       registreId: "reg-3",
-      title: "Polymédication et iatrogénie médicamenteuse",
+      title: "Polymédication, iatrogénie et critères STOPP/START",
       isUrgent: false,
-      summary: "Dépistage des prescriptions inappropriées, cascades médicamenteuses, critères STOPP/START et déprescription planifiée.",
+      summary: "Dépistage des prescriptions inappropriées, cascades médicamenteuses, grille STOPP/START v3 (2023) et démarche de déprescription.",
       content: `### L'enjeu de la polymédication en gériatrie :
-La polymédication (prise simultanée de 5 médicaments ou plus) expose le patient à un risque exponentiel d'interactions toxiques, de confusion, d'insuffisance rénale aiguë et d'hospitalisations évitables.
+La polymédication (prise simultanée de 5 médicaments ou plus, et hyperpolymédication à >= 10 molécules) expose la personne âgée à un risque exponentiel d'effets indésirables, d'interactions médicamenteuses délétères, de chutes avec fractures, de confusion mentale aiguë, d'insuffisance rénale et d'hospitalisations évitables.
 
-### Démarche de révision d'ordonnance :
-- Rechercher les traitements sans indication clinique actuelle ;
+### Démarche méthodique de révision d'ordonnance :
+- Rechercher les traitements sans indication clinique actuelle ou dont l'indication initiale a disparu ;
 - Traquer les doublons thérapeutiques et les cascades iatrogènes (médicament prescrit pour traiter l'effet indésirable méconnu d'un autre médicament) ;
-- Vérifier l'adéquation des doses au DFG ;
-- Utiliser les outils d'aide à la décision : **Critères STOPP/START** et critères de **Beers**.
+- Vérifier l'adéquation rigoureuse des posologies au Débit de Filtration Glomérulaire (DFG estimé par la formule de Cockcroft-Gault) ;
+- Utiliser les outils d'aide à la décision validés internationalement : **Critères STOPP/START v3 (2023)** et critères de **Beers 2023**.
 
-### Planification de la déprescription :
-- La déprescription doit être hiérarchisée, expliquée au patient et aux aidants, et faire l'objet d'un suivi rapproché.
-- L'objectif n'est pas uniquement de supprimer des lignes d'ordonnance, mais d'optimiser le schéma pour maximiser l'autonomie et la sécurité.`
+### Tableau de synthèse des critères STOPP v3 & START v3 par système d'organes :
+
+| Système d'organes | STOPP v3 (Prescriptions à proscrire / déprescrire) | START v3 (Prescriptions à initier / optimiser) |
+| :--- | :--- | :--- |
+| **Cardiovasculaire** | **Aspirine en prévention primaire** sans atteinte athéromateuse (sur-risque hémorragique supérieur au bénéfice) | **AOD ou AVK** si FA non valvulaire avec CHA2DS2-VASc >= 2 (prévention de l'AVC cardio-embolique) |
+| **Cardiovasculaire** | **Digoxine > 125 µg/j** ou si DFG < 30 mL/min (marge étroite, risque d'arythmie ventriculaire) | **IEC ou ARA2** dans l'IC à fraction d'éjection réduite (IC-FEr) ou post-IDM |
+| **Cardiovasculaire** | **Bêtabloquant + Vérapamil / Diltiazem** (risque majeur de BAV complet, bradycardie et collapsus) | **Bêtabloquant cardio-sélectif** (bisoprolol, carvédilol) si IC-FEr stable ou angor documenté |
+| **Cardiovasculaire** | **Antihypertenseurs d'action centrale** (clonidine, moxonidine : somnolence, hypotension, effet rebond) | **Statine** en prévention secondaire cardiovasculaire avérée si espérance de vie > 1 an |
+| **Système Nerveux Central** | **Benzodiazépines & Z-drugs > 4 semaines** (somnolence, troubles mnésiques, chutes, fractures) | **ISRS** (sertraline, escitalopram) en 1ère intention si épisode dépressif caractérisé avéré |
+| **Système Nerveux Central** | **Antipsychotiques** dans les démences pour symptômes bénins (triplement du risque d'AVC et surmortalité) | **L-Dopa ou agoniste dopaminergique** dans la maladie de Parkinson si gêne motrice invalidante |
+| **Système Nerveux Central** | **Antidépresseurs tricycliques** (effets anticholinergiques : confusion, rétention d'urine, glaucome) | — |
+| **Système Nerveux Central** | **Antihistaminiques H1 sédatifs** (hydroxyzine, prométhazine en hypnotiques : sédation résiduelle, chutes) | — |
+| **Gastro-intestinal** | **IPP pleine dose > 8 semaines** sans indication prouvée (risque de C. difficile, fractures, carence B12) | **IPP de coprotection** si AINS au long cours, double antiagrégation ou antécédent d'ulcère |
+| **Gastro-intestinal** | **Huile de paraffine au long cours** (pneumopathie lipidique d'inhalation et malabsorption des vit. A, D, E, K) | **Laxatif osmotique** (macrogol) ou mucilage systématique sous traitement opioïde au long cours |
+| **Gastro-intestinal** | **Métoclopramide ou Dompéridone > 5 jours** (dyskinésies extrapyramidales aiguës ou tardives, allongement QT) | — |
+| **Musculo-squelettique** | **AINS par voie générale > 3-5 jours** (insuffisance rénale aiguë, décompensation d'IC, poussée d'HTA, UGD) | **Bisphosphonate oral ou IV** chez le patient ostéoporotique avec fracture de fragilité |
+| **Musculo-squelettique** | **AINS + IEC/ARA2 + Diurétique** (« triple whammy » : risque foudroyant d'anurie et d'insuffisance rénale) | **Vitamine D + Calcium** chez le sujet âgé ostéoporotique, carencé ou institutionnalisé |
+| **Musculo-squelettique** | **Opioïdes forts en 1ère intention** dans l'arthrose chronique non cancéreuse sans palier analgésique | **Allopurinol ou Fébuxostat** si goutte récurrente (>= 2 crises/an), tophi ou lithiase urique |
+| **Musculo-squelettique** | **Myorelaxants** (méphénésine, thiocolchicoside : efficacité non démontrée, sédation et risque de chute) | — |
+| **Endocrinien & Métabolisme** | **Sulfamides à demi-vie longue** (glibenclamide, glimépiride : hypoglycémies sévères prolongées) | **iSGLT2 (gliflozines)** si DT2 avec coronaropathie, IC ou maladie rénale chronique |
+| **Endocrinien & Métabolisme** | **Cibles d'HbA1c trop strictes (< 7.0%)** chez le sujet âgé fragile (surmortalité par hypoglycémies, viser 7.5-8.5%) | **Statine** chez le diabétique âgé de plus de 65 ans avec au moins un autre FRCV |
+| **Endocrinien & Métabolisme** | **Œstrogènes systémiques (THM)** débutés après 65 ans (risque accru de thrombose veineuse, AVC et démence) | **Lévothyroxine** en cas d'hypothyroïdie patente confirmée (TSH élevée, T4L basse) |
+| **Néphrologie & Urologie** | **Antispasmodiques urinaires anticholinergiques** (oxybutynine si déclin cognitif : confusion, rétention aiguë) | **IEC ou ARA2** si maladie rénale chronique avec protéinurie significative (> 300 mg/g) |
+| **Néphrologie & Urologie** | **Alpha-1 bloquants** (tamsulosine si antécédent d'hypotension orthostatique sévère ou de chutes récurrentes) | **Inhibiteur 5-alpha réductase** (finastéride) si HBP volumineuse (> 40 g) symptomatique |
+| **Néphrologie & Urologie** | **Diurétique de l'anse à forte dose** pour œdèmes malléolaires isolés sans insuffisance cardiaque (déshydratation) | — |
+| **Néphrologie & Urologie** | **Spironolactone à forte dose** si DFG < 30 mL/min ou kaliémie > 5.0 mmol/L (risque d'arrêt cardiaque) | — |
+
+### Démarche pratique de déprescription en 5 étapes :
+- **1. Inventaire exhaustif :** Recenser l'ensemble des molécules consommées (ordonnances, spécialistes, automédication, phytothérapie et compléments).
+- **2. Ciblage des PIM :** Identifier les prescriptions inappropriées à l'aide de la grille STOPP/START v3 et des critères de Beers 2023.
+- **3. Priorisation concertée :** Déterminer avec le patient et son entourage les molécules à arrêter en priorité selon les objectifs de vie et l'espérance de vie.
+- **4. Sevrage progressif :** Échelonner l'arrêt molécule par molécule avec réduction progressive des doses pour prévenir les syndromes de sevrage ou de rebond (bêtabloquants, benzodiazépines, IPP).
+- **5. Surveillance clinique rapprochée :** Programmer une réévaluation clinique systématique à 4 et 8 semaines pour vérifier l'absence de récidive symptomatique.`
     },
     {
       num: 32,
