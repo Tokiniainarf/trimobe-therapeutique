@@ -225,15 +225,18 @@ function renderMarkdown(md) {
 const memoryStore = {};
 
 function safeStorageGet(key) {
+  if (Object.prototype.hasOwnProperty.call(memoryStore, key)) {
+    return memoryStore[key];
+  }
   try {
     if (typeof localStorage !== 'undefined') {
       const val = localStorage.getItem(key);
-      if (val !== null) return val;
+      if (val !== null && val !== undefined) return val;
     }
   } catch (e) {
     // Mode navigation privée ou iframe sandbox sans permissions de stockage
   }
-  return Object.prototype.hasOwnProperty.call(memoryStore, key) ? memoryStore[key] : null;
+  return null;
 }
 
 function safeStorageSet(key, value) {
@@ -380,17 +383,38 @@ function toggleSidebar(forceOpen) {
 // Sécurise l'encapsulation de tout tableau dans un conteneur défilant horizontalement
 function ensureResponsiveTables(container) {
   if (!container || typeof container.querySelectorAll !== 'function') return;
-  const tables = container.querySelectorAll('table');
-  tables.forEach(table => {
-    if (table.parentElement && !table.parentElement.classList.contains('table-responsive-wrapper') && !table.parentElement.classList.contains('table-responsive')) {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'table-responsive-wrapper';
-      if (table.parentNode) {
-        table.parentNode.insertBefore(wrapper, table);
-        wrapper.appendChild(table);
+  const wrap = (node) => {
+    if (!node || typeof node.querySelectorAll !== 'function') return;
+    const tables = node.querySelectorAll('table');
+    tables.forEach(table => {
+      if (table.parentElement && !table.parentElement.classList.contains('table-responsive-wrapper') && !table.parentElement.classList.contains('table-responsive')) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'table-responsive-wrapper';
+        if (table.parentNode) {
+          table.parentNode.insertBefore(wrapper, table);
+          wrapper.appendChild(table);
+        }
       }
-    }
-  });
+    });
+  };
+
+  wrap(container);
+
+  if (!container._hasResponsiveTableInterceptor && typeof container.appendChild === 'function') {
+    const origAppend = container.appendChild.bind(container);
+    container.appendChild = function(child) {
+      if (child && typeof child.querySelectorAll === 'function') {
+        const childTables = child.querySelectorAll('table');
+        if (childTables.length > 0 && child.classList) {
+          child.classList.add('table-responsive-wrapper');
+        }
+      }
+      const res = origAppend(child);
+      wrap(container);
+      return res;
+    };
+    container._hasResponsiveTableInterceptor = true;
+  }
 }
 
 /* ==========================================================================
@@ -1472,14 +1496,14 @@ function showCopyFeedback() {
     if (!btn._originalHtml) {
       btn._originalHtml = btn.innerHTML;
     }
+    const originalText = btn._originalHtml;
     btn.innerHTML = '✓ Synthèse copiée !';
     btn.style.background = 'var(--success)';
     clearTimeout(btn._feedbackTimer);
     btn._feedbackTimer = setTimeout(() => {
       if (btn) {
-        btn.innerHTML = btn._originalHtml;
+        btn.innerHTML = originalText;
         btn.style.background = 'var(--brand-primary)';
-        btn._originalHtml = null;
       }
     }, 2500);
   }
