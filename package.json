@@ -1,0 +1,17 @@
+{
+  "name": "trimobe-therapeutique",
+  "version": "3.0.0",
+  "private": true,
+  "description": "Plateforme médicale TRIMOBE & UMSP — Thérapeutique clinique & gériatrie (PWA hors-ligne)",
+  "scripts": {
+    "start": "python -m http.server 8080 || npx --yes serve -l 8080",
+    "test": "node run-all-tests.js",
+    "test:suite": "node test-suite.js",
+    "test:dom": "node test-dom.js",
+    "test:adv": "node test-m1-adversarial.js",
+    "test:m3": "node test_challenger_m3_search.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,9 +1,14 @@
 /**
  * SERVICE WORKER PWA — MANUELS DE THÉRAPEUTIQUE CLINIQUE & GÉRIATRIE 2026
  * Collection TRIMOBE & UMSP — Cache et Fonctionnement Hors-Ligne
+ *
+ * Stratégie :
+ * - Shell applicatif (HTML/JS/CSS/manifest) : network-first, cache en secours
+ * - Navigation hors-ligne : fallback index.html
+ * - Install résilient (un asset en échec n’abandonne pas tout le cache)
  */
 
-const CACHE_NAME = 'trimobe-therapeutique-v2';
+const CACHE_NAME = 'trimobe-therapeutique-v4';
 
 const ASSETS = [
   './',
@@ -14,14 +19,22 @@ const ASSETS = [
   './data-drugs.js',
   './calculators.js',
   './app.js',
-  './manifest.json'
+  './manifest.json',
+  './icons/icon.svg'
 ];
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(ASSETS))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(async cache => {
+      await Promise.all(
+        ASSETS.map(url =>
+          cache.add(new Request(url, { cache: 'reload' })).catch(() => {
+            // Un asset manquant ne doit pas faire échouer l’installation
+          })
+        )
+      );
+      await self.skipWaiting();
+    })
   );
 });
 
@@ -34,28 +47,49 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
+  const req = event.request;
+  if (req.method !== 'GET') return;
 
+  const url = new URL(req.url);
+
+  // Cross-origin (fonts Google, etc.) : cache-first après succès, sinon réseau
+  if (url.origin !== self.location.origin) {
+    event.respondWith(
+      caches.match(req).then(cached => cached || fetch(req).then(res => {
+        if (res && res.ok) {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(c => c.put(req, clone));
+        }
+        return res;
+      }))
+    );
+    return;
+  }
+
+  // Navigation : network-first (contenu médical à jour), fallback offline
+  if (req.mode === 'navigate') {
+    event.respondWith(
+      fetch(req)
+        .then(res => {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(c => c.put('./index.html', clone));
+          return res;
+        })
+        .catch(() => caches.match('./index.html').then(r => r || caches.match('./')))
+    );
+    return;
+  }
+
+  // Assets applicatifs : network-first pour éviter un cache médical périmé
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) {
-        return cached;
-      }
-      return fetch(event.request).then(response => {
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
+    fetch(req)
+      .then(res => {
+        if (res && res.ok) {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(c => c.put(req, clone));
         }
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, responseToCache);
-        });
-        return response;
-      }).catch(() => {
-        // En cas de perte de réseau sur les requêtes de navigation
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html') || caches.match('./');
-        }
-      });
-    })
+        return res;
+      })
+      .catch(() => caches.match(req))
   );
 });

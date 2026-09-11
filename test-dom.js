@@ -4,6 +4,8 @@
  */
 
 const fs = require('fs');
+const path = require('path');
+const ROOT = __dirname;
 
 // Mock DOM conforme aux invariants Sandboxed DOM Testing
 class MockElement {
@@ -122,15 +124,15 @@ const files = [
 ];
 
 files.forEach(f => {
-  if (!fs.existsSync(f)) {
+  if (!fs.existsSync(path.join(ROOT, f))) {
     throw new Error(`Fichier manquant : ${f}`);
   }
 });
 // Test de renderMarkdown sur les tableaux et formules
-const appCode = fs.readFileSync('./app.js', 'utf8');
+const appCode = fs.readFileSync(path.join(ROOT, 'app.js'), 'utf8');
 eval(appCode.substring(0, appCode.indexOf('// État global')));
 
-const gen = require('./data-general.js');
+const gen = require(path.join(ROOT, 'data-general.js'));
 const ch45 = gen.chapters.find(c => c.num === 'XLV');
 const rendered45 = renderMarkdown(ch45.content);
 if (!rendered45.includes('<table class="clinical-table">')) {

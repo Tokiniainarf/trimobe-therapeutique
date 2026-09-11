@@ -1148,10 +1148,13 @@ describe("Tier 1.10 : Check-list de Prescription Sécurisée", () => {
 
   test("1.10.5 - Copie de la note de sécurité avec fallback presse-papiers", async () => {
     const env = createTestAppEnvironment();
+    env.sandbox.renderView('checklist');
     env.sandbox.copyChecklistNote();
     await new Promise(r => setTimeout(r, 10));
     assert.ok(env.window._lastCopied.includes('[Sécurité Ordonnance - Collection TRIMOBE]'));
-    assert.ok(env.window._lastAlert.includes('copiée dans le presse-papiers'));
+    // Feedback non bloquant : le bouton affiche la confirmation (pas d'alert modal)
+    const btn = env.document.getElementById('copyChecklistBtn');
+    assert.ok(btn && String(btn.innerHTML).includes('copiée'));
   });
 });
 

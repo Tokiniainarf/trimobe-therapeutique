@@ -4,15 +4,17 @@
  */
 
 const fs = require('fs');
+const path = require('path');
 const assert = require('assert');
+const ROOT = __dirname;
 
 // 1. Charger les données et le moteur Markdown
-const drugsData = require('./data-drugs.js');
-const geriatrieData = require('./data-geriatrie.js');
-const generalData = require('./data-general.js');
+const drugsData = require(path.join(ROOT, 'data-drugs.js'));
+const geriatrieData = require(path.join(ROOT, 'data-geriatrie.js'));
+const generalData = require(path.join(ROOT, 'data-general.js'));
 
 // Extraire renderMarkdown et parseMarkdownLists depuis app.js
-const appSource = fs.readFileSync('./app.js', 'utf8');
+const appSource = fs.readFileSync(path.join(ROOT, 'app.js'), 'utf8');
 const vm = require('vm');
 
 // Mock DOM pour sandbox

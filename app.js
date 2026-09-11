@@ -1507,13 +1507,33 @@ function showCopyFeedback() {
       }
     }, 2500);
   }
-  if (typeof alert === 'function') {
-    try {
-      alert("Note de conformité copiée dans le presse-papiers !");
-    } catch (e) {
-      // Ignorer si alert est indisponible
-    }
+  showToast('Note de conformité copiée dans le presse-papiers', 'success');
+}
+
+/** Toast non bloquant (feedback UI, sans alert modal) */
+function showToast(message, type = 'success') {
+  if (typeof document === 'undefined' || !document.body) return;
+  let toast = document.getElementById('trimobeToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'trimobeToast';
+    toast.className = 'trimobe-toast';
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+    document.body.appendChild(toast);
   }
+  toast.className = `trimobe-toast ${type}`;
+  toast.innerHTML = `<span class="trimobe-toast-icon">${type === 'success' ? '✓' : type === 'danger' ? '⚠' : 'ℹ'}</span><span></span>`;
+  const textSpan = toast.querySelector('span:last-child');
+  if (textSpan) textSpan.textContent = message;
+  const reveal = () => toast.classList.add('show');
+  if (typeof requestAnimationFrame === 'function') {
+    requestAnimationFrame(reveal);
+  } else {
+    reveal();
+  }
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => toast.classList.remove('show'), 2800);
 }
 
 function fallbackCopyText(text) {
